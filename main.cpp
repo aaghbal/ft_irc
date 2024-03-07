@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:04:03 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/07 14:26:51 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/07 14:55:58 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ int main(int ac, char **av)
     {
         if (ac != 3)
             throw Error();
+        char buffer[1024];
         struct addrinfo hint , *addr;
         memset(&hint, 0, sizeof(hint));
         hint.ai_family = AF_INET;
@@ -38,7 +39,20 @@ int main(int ac, char **av)
         int new_fd = accept(fd_s, (struct sockaddr *)&addr->ai_addr, &len);
         if (new_fd == -1)
             return(write(2,"error accept\n", 14));
-        send(new_fd,  "connect succes\n", 16, 0);
+        while (true)
+        {
+            bzero(buffer, 1024);
+            send(new_fd,  "password ", 10, 0);
+            recv(new_fd, buffer, 1023, 0);
+            if (strncmp("12345", buffer, 5) == 0)
+            {
+                std::cout << "Welcome\n" << std::endl;
+                send(new_fd,  "correct\n", 9, 0);
+            }
+            else
+                send(new_fd,  "incorrect check your password \n", 32, 0);
+        }
+        
     }
     catch(const Error& e)
     {
