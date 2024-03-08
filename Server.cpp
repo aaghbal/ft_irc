@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/08 11:21:46 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/08 16:44:08 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@ void Server::set_port(const char *port)
     this->port = port;
 }
 
+void Server::set_password(const std::string &password)
+{
+    this->password = password;
+}
 
 void Server::init_addrinfo(void)
 {
@@ -88,21 +92,18 @@ void Server:: accept_req(void)
     catch(const Error& e)
     {
         e.ErrorAccept();
-    }   
+    }
      while (true)
     {
         bzero(buff, 1024);
         send(this->new_fd_s,  "password ", 10, 0);
         recv(this->new_fd_s, buff, 1023, 0);
-        if (strncmp("12345", buff, 5) == 0)
-        {
-            std::cout << "Welcome\n" << std::endl;
-            send(this->new_fd_s,  "correct\n", 9, 0);
-        }
+        std::string buf = buff;
+        if (check_password(buf))
+            break;
         else
             send(this->new_fd_s,  "incorrect check your password \n", 32, 0);
     }
-
 }
 
 void Server::run_server()
@@ -113,4 +114,17 @@ void Server::run_server()
     bind_socket();
     listen_requ();
     accept_req();
+}
+
+bool Server::check_password(std::string &pass)
+{
+    if(pass.back() == '\n')
+            pass.pop_back();
+    if (this->password == pass)
+    {
+        std::cout << "Welcome\n" << std::endl;
+        send(this->new_fd_s,  "correct\n", 9, 0);
+        return (true);
+    }
+    return (false);
 }

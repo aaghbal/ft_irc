@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/08 11:20:46 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/08 16:39:20 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Server
         int                     fd_s;
         int                     new_fd_s;
         const char              *port;
+        std::string             password;
         struct      addrinfo    sockinfo;
         struct      addrinfo    *adress;
         socklen_t               len;
@@ -34,4 +35,6 @@ class Server
         void    listen_requ(void);
         void    accept_req(void);
         void    run_server();
+        void    set_password(const std::string &password);
+        bool    check_password(std::string &pass);
 };
