@@ -58,47 +58,4 @@ This IRC server aims to deliver a robust and efficient chat service, focusing on
   |   Client Interface                 |                                      
   |____________________________________|                                
 
-  +------------------------------------------------------------------+
-  |                           Socket API                              |
-  +------------------------------------------------------------------+
-  |  +------------------+  +------------------+  +------------------+ |
-  |  |    Socket()      |  |     Bind()       |  |    Listen()      | |
-  |  +------------------+  +------------------+  +------------------+ |
-  |  |  - Creates a     |  |  - Binds a       |  |  - Listens for    | |
-  |  |    new socket    |  |    socket to a   |  |    incoming       | |
-  |  |  - Returns a     |  |    specific      |  |    connections    | |
-  |  |    socket file   |  |    address and   |  |  - Specifies the  | |
-  |  |    descriptor    |  |    port number   |  |    backlog queue   | |
-  |  +------------------+  +------------------+  +------------------+ |
-  |                                                                  |
-  |  +------------------+  +------------------+  +------------------+ |
-  |  |    Connect()     |  |    Accept()      |  |    Send()        | |
-  |  +------------------+  +------------------+  +------------------+ |
-  |  |  - Establishes   |  |  - Accepts an    |  |  - Sends data     | |
-  |  |    a connection  |  |    incoming      |  |    over a socket  | |
-  |  |    to a remote   |  |    connection    |  |  - Returns the    | |
-  |  |    server        |  |  - Returns a     |  |    number of      | |
-  |  |  - Returns 0 on  |  |    new socket    |  |    bytes sent     | |
-  |  |    success, -1   |  |    descriptor    |  |    or -1 on error | |
-  |  |    on error      |  |    for the       |  +------------------+ |
-  |  +------------------+  |    accepted     |                        |
-  |                         |    connection   |  +------------------+ |
-  |  +------------------+  |  - Blocks until |  |    Receive()     | |
-  |  |    Close()       |  |    a connection |  +------------------+ |
-  |  +------------------+  |    is available|  |  - Receives data  | |
-  |  |  - Closes a      |  +------------------+  |    from a socket  | |
-  |  |    socket        |                         |  - Returns the    | |
-  |  |  - Releases      |  +------------------+  |    number of      | |
-  |  |    associated    |  |  Sendto()        |  |    bytes received| |
-  |  |    resources     |  +------------------+  |    or -1 on error| |
-  |  +------------------+  |  - Sends data    |  +------------------+ |
-  |  +------------------+  |    to a specific |                      |
-  |  |  getaddrinfo()   |  |    address and   |                       |
-  |  +------------------+  |    port          |                       |
-  |  |    resolving a   |  +------------------+                      |
-  |  |      hostname    |                                            |
-  |  | and service name |                                            |
-  |  |       to         |                                            |
-  |  |  a list of socket|                                            |   
-  |  |   addresses      |                                            |
-  +------------------------------------------------------------------+
+
