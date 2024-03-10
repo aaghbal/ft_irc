@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/08 16:44:08 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/10 11:00:17 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,27 +23,18 @@ void Server::set_password(const std::string &password)
     this->password = password;
 }
 
-void Server::init_addrinfo(void)
+void Server::init_sockinfo(void)
 {
-    this->sockinfo.ai_family = AF_INET;
-    this->sockinfo.ai_socktype = SOCK_STREAM;
-    this->sockinfo.ai_flags = AI_PASSIVE;
-    try
-    {
-        if (getaddrinfo(NULL, this->port, &this->sockinfo, &this->adress) == -1)
-            throw Error();
-    }
-    catch(const Error& e)
-    {
-        e.ErrorGetAddrInof();
-    }
+    this->sockinfo.sin_family= AF_INET;
+    this->sockinfo.sin_port = htons(std::atoi(this->port));
+    this->sockinfo.sin_addr.s_addr = INADDR_ANY;
 }
 
 void Server::create_socket(void)
 {
     try
     {
-        this->fd_s = socket(this->adress->ai_family,  this->adress->ai_socktype, this->adress->ai_protocol);
+        this->fd_s = socket(this->sockinfo.sin_family,  SOCK_STREAM, 0);
         if (this->fd_s == -1)
             throw Error();
     }
@@ -51,14 +42,13 @@ void Server::create_socket(void)
     {
         e.ErrorSocket();
     }
-    
 }
 
 void Server::bind_socket(void)
 {
        try
     {
-        if (bind(this->fd_s, this->adress->ai_addr, this->adress->ai_addrlen) == -1)
+        if (bind(this->fd_s,(const sockaddr *)&this->sockinfo , sizeof(this->sockinfo)) == -1)
             throw Error();
     }
     catch(const Error& e)
@@ -82,10 +72,10 @@ void Server::listen_requ(void)
 
 void Server:: accept_req(void)
 {
-    this->len = sizeof(this->adress->ai_addr);
+    this->len = sizeof(this->client_info);
     try
     {
-        this->new_fd_s = accept(this->fd_s, (struct sockaddr*)&this->adress->ai_addr, &len);
+        this->new_fd_s = accept(this->fd_s, (struct sockaddr*)&client_info, &len);
         if (this->new_fd_s == -1)
             throw Error();
     }
@@ -99,8 +89,7 @@ void Server:: accept_req(void)
         send(this->new_fd_s,  "password ", 10, 0);
         recv(this->new_fd_s, buff, 1023, 0);
         std::string buf = buff;
-        if (check_password(buf))
-            break;
+        if (check_password(buf));
         else
             send(this->new_fd_s,  "incorrect check your password \n", 32, 0);
     }
@@ -109,7 +98,7 @@ void Server:: accept_req(void)
 void Server::run_server()
 {
     set_port(this->port);
-    init_addrinfo();
+    init_sockinfo();
     create_socket();
     bind_socket();
     listen_requ();

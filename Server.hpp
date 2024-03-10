@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/08 16:39:20 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/10 10:53:40 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@ class Server
         int                     new_fd_s;
         const char              *port;
         std::string             password;
-        struct      addrinfo    sockinfo;
-        struct      addrinfo    *adress;
+        struct sockaddr_in      sockinfo;
+        struct sockaddr_in      client_info;
         socklen_t               len;
         char                    buff[1000];
         
 
     public :
-        void    init_addrinfo();
+        void    init_sockinfo();
         void    create_socket();
         void    set_port(const char *port);
         void    bind_socket(void);
