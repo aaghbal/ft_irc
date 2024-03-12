@@ -6,13 +6,12 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 11:15:21 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/12 13:17:16 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
 #include "Header.hpp"
-#include <sys/socket.h>
+
 void Server::set_port(const char *port)
 {
     this->port = port;
@@ -98,7 +97,6 @@ void Server:: accept_req(void)
 
 void Server::run_server()
 {
-    set_port(this->port);
     init_sockinfo();
     create_socket();
     bind_socket();
@@ -123,14 +121,16 @@ void Server::add_new_connection(void)
 {
     struct sockaddr_in clinfo;
     this->len = sizeof(clinfo);
+    Client   cl;
     try
     {
         this->new_fd_s = accept(this->fd_s, (sockaddr *)&clinfo, &len);
         if (new_fd_s == -1)
             throw Error();
+        cl.set_fd_client(this->new_fd_s);
+        this->clients.push_back(cl);
         this->polfd.push_back(init_pollfd(this->new_fd_s));
         this->client_info.push_back(clinfo);
-        send(this->new_fd_s, "hello\n", 5, 0);
     }
     catch(const Error& e)
     {
@@ -141,7 +141,8 @@ void Server::add_new_connection(void)
 
 void Server::recive_req(int i)
 {
-    this->nbyteread = recv(this->polfd[i].fd, buff, 1000, 0);
+    bzero(this->clients[i - 1].buff, 1000);
+    this->nbyteread = recv(this->polfd[i].fd, this->clients[i - 1].buff, 1000, 0);
     if (this->nbyteread <= 0)
     {
         if (this->nbyteread == 0)
@@ -151,8 +152,11 @@ void Server::recive_req(int i)
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
     }
-    std::cout << buff << std::endl;
-    bzero(buff, 1000);
+    send(this->clients[i - 1].get_fd_client(), "nickname ", 10, 0);
+    recv(this->clients[i - 1].get_fd_client(), this->clients[i - 1].buff, 1000, 0);
+    this->clients[i - 1].set_password(this->clients[i - 1].buff);
+            std::cerr << "nickname " << this->clients[i - 1].get_password() << std::endl; 
+    
 }
 
 pollfd Server::init_pollfd(int fd)

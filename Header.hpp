@@ -6,14 +6,13 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:51:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 11:13:53 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/12 12:04:02 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
-#include <string>
 #include <iostream>
+#include <string>
 #include <cstdlib>
 #include <vector>
 #include <sys/socket.h>
@@ -26,3 +25,4 @@
 #include <sys/socket.h>
 #include "Error.hpp"
 #include "Server.hpp"
+#include "Client.hpp"
