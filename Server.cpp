@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 15:42:40 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/12 16:36:52 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,8 @@ void Server::check_password(int i)
             this->clients[i].get_password().pop_back();
     if (this->password == this->clients[i].get_password())
     {
-        send(this->clients[i].get_fd_client(),  "Welcome to the server ", 22, 0);
+        send(this->clients[i].get_fd_client(),  "Welcome to the server\n", 22, 0);
+        send(this->clients[i].get_fd_client(), "nickname ", 10, 0);
         this->clients[i].authenticate = true;
     }
     else
@@ -125,13 +126,14 @@ void Server::add_new_connection(void)
     Client   cl;
     try
     {
-        this->new_fd_s = accept(this->fd_s, (sockaddr *)&clinfo, &len);
+        int new_fd_s = accept(this->fd_s, (sockaddr *)&clinfo, &len);
+        std::cout << "new client with fd : " << new_fd_s << std::endl;
         if (new_fd_s == -1)
             throw Error();
-        send(this->new_fd_s, "connection successful\nEnter server password ", 45, 0);
-        cl.set_fd_client(this->new_fd_s);
+        cl.set_fd_client(new_fd_s);
+        send(new_fd_s, "connection successful\nEnter server password ", 45, 0);
         this->clients.push_back(cl);
-        this->polfd.push_back(init_pollfd(this->new_fd_s));
+        this->polfd.push_back(init_pollfd(new_fd_s));
         this->client_info.push_back(clinfo);
     }
     catch(const Error& e)
@@ -141,10 +143,18 @@ void Server::add_new_connection(void)
 
 }
 
+int    myRevc(std::string &str , int fd)
+{
+    char buff[1001];
+    int ret = recv(fd, buff, 1000, 0);
+    buff[ret - 1] = '\0';
+    str = buff;
+    return ret;
+}
+
 void Server::recive_req(int i)
 {
-    bzero(this->clients[i - 1].buff, 1000);
-    this->nbyteread = recv(this->clients[i - 1].get_fd_client(), this->clients[i - 1].buff, 1000, 0);
+    this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
     if (this->nbyteread <= 0)
     {
         if (this->nbyteread == 0)
@@ -154,7 +164,7 @@ void Server::recive_req(int i)
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
     }
-    this->clients[i - 1].buff[nbyteread - 1] = '\0';
+    std::cout << "clien fd : " << this->clients[i - 1].get_fd_client() << " with string : " <<  this->clients[i - 1].buff << std::endl;
     init_client(i - 1);
     
 }
@@ -172,19 +182,24 @@ pollfd Server::init_pollfd(int fd)
 
 void Server::init_client(int i)
 {
+    if (this->clients[i].authenticate){
+        if (this->clients[i].buff.empty()){
+            if (this->clients[i].get_nickname().empty())
+                send(this->clients[i].get_fd_client(), "please enter valid `nickname`: ", 31, 0);
+            else if (this->clients[i].get_username().empty())
+                send(this->clients[i].get_fd_client(), "please enter valid `username`:  ", 31, 0);
+        }
+        else if (this->clients[i].get_nickname().empty())
+        {
+            this->clients[i].set_nickname(this->clients[i].buff);
+            send(this->clients[i].get_fd_client(), "username ", 10, 0);
+        }
+        else if (this->clients[i].get_username().empty())
+            this->clients[i].set_username(this->clients[i].buff);
+    }
     if (this->clients[i].authenticate == false)
     {
         this->clients[i].set_password(this->clients[i].buff);
         check_password(i);
-    }
-    else if (this->clients[i].get_nickname().empty())
-    {
-        send(this->clients[i].get_fd_client(), "nickname ", 10, 0);
-        this->clients[i].set_nickname(this->clients[i].buff);
-    }
-    else if (this->clients[i].get_username().empty())
-    {
-        send(this->clients[i].get_fd_client(), "username ", 10, 0);
-        this->clients[i].set_username(this->clients[i].buff);
     }
 }

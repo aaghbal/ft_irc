@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 15:12:42 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/12 16:27:17 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,11 @@ class Server
 {
     private :
         int                                 fd_s;
-        int                                 new_fd_s;
+        // int                                 new_fd_s;
         const char                          *port;
         int                                 nbyteread;
         std::string                         password;
         std::string                         client_pass;
-        // int                                 aute
         struct sockaddr_in                  sockinfo;
         std::vector<struct pollfd>          polfd;
         std::vector<Client>                 clients;
