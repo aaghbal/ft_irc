@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Header.hpp                                         :+:      :+:    :+:   */
+/*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/01 15:51:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 11:13:53 by aaghbal          ###   ########.fr       */
+/*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
+/*   Updated: 2024/03/11 16:44:44 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <cstdlib>
-#include <vector>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <poll.h> 
-#include <vector>
-#include <sys/socket.h>
-#include "Error.hpp"
-#include "Server.hpp"
+#include "Header.hpp"
+
+class Client {
+  
+    private :
+        int             fd_client;
+        std::string     nickname;
+        std::string     username;
+        
+    public :
+        void    set_nickname(std::string &niname);
+        void    set_username(std::string &usname);
+        void    set_fd_client(int fd);
+};

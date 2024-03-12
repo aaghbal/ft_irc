@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/11 15:03:31 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/12 11:15:21 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void Server::recive_req(int i)
         else
             std::cerr << "recv failed" << std::endl; 
         close(this->polfd[i].fd);
-        this->polfd[i].fd = -1;
+        this->polfd.erase(polfd.begin() + i);
     }
     std::cout << buff << std::endl;
     bzero(buff, 1000);
