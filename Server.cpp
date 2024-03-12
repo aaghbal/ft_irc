@@ -6,11 +6,12 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 13:17:16 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/12 15:42:40 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Header.hpp"
+#include "Server.hpp"
 
 void Server::set_port(const char *port)
 {
@@ -104,17 +105,17 @@ void Server::run_server()
     accept_req();
 }
 
-bool Server::check_password(std::string &pass)
+void Server::check_password(int i)
 {
-    if(pass.back() == '\n')
-            pass.pop_back();
-    if (this->password == pass)
+    if(this->clients[i].get_password().back() == '\n')
+            this->clients[i].get_password().pop_back();
+    if (this->password == this->clients[i].get_password())
     {
-        std::cout << "Welcome\n" << std::endl;
-        send(this->new_fd_s,  "correct\n", 9, 0);
-        return (true);
+        send(this->clients[i].get_fd_client(),  "Welcome to the server ", 22, 0);
+        this->clients[i].authenticate = true;
     }
-    return (false);
+    else
+        send(this->clients[i].get_fd_client(), "The password is incorrect, try again : ", 39, 0);
 }
 
 void Server::add_new_connection(void)
@@ -127,6 +128,7 @@ void Server::add_new_connection(void)
         this->new_fd_s = accept(this->fd_s, (sockaddr *)&clinfo, &len);
         if (new_fd_s == -1)
             throw Error();
+        send(this->new_fd_s, "connection successful\nEnter server password ", 45, 0);
         cl.set_fd_client(this->new_fd_s);
         this->clients.push_back(cl);
         this->polfd.push_back(init_pollfd(this->new_fd_s));
@@ -142,7 +144,7 @@ void Server::add_new_connection(void)
 void Server::recive_req(int i)
 {
     bzero(this->clients[i - 1].buff, 1000);
-    this->nbyteread = recv(this->polfd[i].fd, this->clients[i - 1].buff, 1000, 0);
+    this->nbyteread = recv(this->clients[i - 1].get_fd_client(), this->clients[i - 1].buff, 1000, 0);
     if (this->nbyteread <= 0)
     {
         if (this->nbyteread == 0)
@@ -152,10 +154,8 @@ void Server::recive_req(int i)
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
     }
-    send(this->clients[i - 1].get_fd_client(), "nickname ", 10, 0);
-    recv(this->clients[i - 1].get_fd_client(), this->clients[i - 1].buff, 1000, 0);
-    this->clients[i - 1].set_password(this->clients[i - 1].buff);
-            std::cerr << "nickname " << this->clients[i - 1].get_password() << std::endl; 
+    this->clients[i - 1].buff[nbyteread - 1] = '\0';
+    init_client(i - 1);
     
 }
 
@@ -167,4 +167,24 @@ pollfd Server::init_pollfd(int fd)
     pfd.events = POLLIN;
     pfd.revents = 0;
     return pfd;
+}
+
+
+void Server::init_client(int i)
+{
+    if (this->clients[i].authenticate == false)
+    {
+        this->clients[i].set_password(this->clients[i].buff);
+        check_password(i);
+    }
+    else if (this->clients[i].get_nickname().empty())
+    {
+        send(this->clients[i].get_fd_client(), "nickname ", 10, 0);
+        this->clients[i].set_nickname(this->clients[i].buff);
+    }
+    else if (this->clients[i].get_username().empty())
+    {
+        send(this->clients[i].get_fd_client(), "username ", 10, 0);
+        this->clients[i].set_username(this->clients[i].buff);
+    }
 }
