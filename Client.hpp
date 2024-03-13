@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 16:04:44 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 13:51:58 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,9 @@ class Client {
         
     public :
         bool            authenticate;
+        bool            info_client_fin;
         std::string     buff;
+        int             num_attempts;
         void            set_nickname(const std::string &niname);
         void            set_username(const std::string &usname);
         void            set_fd_client(int fd);

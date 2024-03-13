@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 16:36:52 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 15:17:48 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void Server::listen_requ(void)
     }   
 }
 
-void Server:: accept_req(void)
+void Server:: accept_data(void)
 {
     while (true)
     {
@@ -90,7 +90,7 @@ void Server:: accept_req(void)
                 if(this->polfd[i].fd == this->fd_s)
                     add_new_connection();
                 else
-                    recive_req(i);
+                    recive_data(i);
             }
         }
     }
@@ -102,7 +102,7 @@ void Server::run_server()
     create_socket();
     bind_socket();
     listen_requ();
-    accept_req();
+    accept_data();
 }
 
 void Server::check_password(int i)
@@ -116,7 +116,10 @@ void Server::check_password(int i)
         this->clients[i].authenticate = true;
     }
     else
+    {
         send(this->clients[i].get_fd_client(), "The password is incorrect, try again : ", 39, 0);
+        this->clients[i].num_attempts++;
+    }
 }
 
 void Server::add_new_connection(void)
@@ -152,7 +155,7 @@ int    myRevc(std::string &str , int fd)
     return ret;
 }
 
-void Server::recive_req(int i)
+void Server::recive_data(int i)
 {
     this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
     if (this->nbyteread <= 0)
@@ -163,10 +166,18 @@ void Server::recive_req(int i)
             std::cerr << "recv failed" << std::endl; 
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
+        this->clients[i - 1].buff.clear();
     }
     std::cout << "clien fd : " << this->clients[i - 1].get_fd_client() << " with string : " <<  this->clients[i - 1].buff << std::endl;
-    init_client(i - 1);
-    
+    if (this->clients[i - 1].info_client_fin == false)
+        init_client(i - 1);
+    else
+    {
+        cmd = split_cmd(this->clients[i - 1].buff);
+        int fd_rec = this->client_name[cmd[1]];
+        send(fd_rec, cmd[2].c_str(), cmd[2].size(), 0);
+        cmd.clear();
+    }
 }
 
 pollfd Server::init_pollfd(int fd)
@@ -191,15 +202,54 @@ void Server::init_client(int i)
         }
         else if (this->clients[i].get_nickname().empty())
         {
-            this->clients[i].set_nickname(this->clients[i].buff);
-            send(this->clients[i].get_fd_client(), "username ", 10, 0);
+            if (this->client_name.find(this->clients[i].buff) != this->client_name.end())
+                send(this->clients[i].get_fd_client(), "this nickname had already taken Try another one: ", 50, 0);
+            else
+            {
+                this->client_name[this->clients[i].buff] = this->clients[i].get_fd_client();
+                this->clients[i].set_nickname(this->clients[i].buff);
+                send(this->clients[i].get_fd_client(), "username ", 10, 0);
+            }
         }
         else if (this->clients[i].get_username().empty())
+        {
             this->clients[i].set_username(this->clients[i].buff);
+            this->clients[i].info_client_fin = true;
+            send(this->clients[i].get_fd_client(), "command ", 9, 0);
+        }
     }
     if (this->clients[i].authenticate == false)
     {
+        if (this->clients[i].num_attempts == 3)
+        {
+            close(this->clients[i].get_fd_client());
+            this->polfd.erase(polfd.begin() + i + 1);
+        }
         this->clients[i].set_password(this->clients[i].buff);
         check_password(i);
     }
+}
+
+std::vector<std::string> Server::split_cmd(std::string &cmd)
+{
+    std::vector<std::string>    MySplitData;
+    std::string                 token;
+    int                         nsp;
+    int                         count = 0;
+
+    while(cmd.find(' ') != std::string::npos)
+    {
+        if (count == 2)
+            break;
+        nsp = cmd.find(' ');
+        token = cmd.substr(0, nsp);
+        if (!token.empty() || !token.find(9))
+        {
+            MySplitData.push_back(token);
+            count++;
+        }
+        cmd.erase(0, nsp + 1);
+    }
+    MySplitData.push_back(cmd);
+    return (MySplitData);
 }
