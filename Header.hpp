@@ -1,35 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Header.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/01 15:04:03 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/08 16:42:38 by aaghbal          ###   ########.fr       */
+/*   Created: 2024/03/01 15:51:32 by aaghbal           #+#    #+#             */
+/*   Updated: 2024/03/08 11:31:34 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Header.hpp"
+#pragma once
 
-
-
-int main(int ac, char **av)
-{
-    try
-    {
-        if (ac != 3)
-            throw Error();
-        Server s;
-        
-        s.set_port(av[1]);
-        s.set_password(av[2]);
-        s.run_server();
-        std::cout << "is finished" << std::endl;
-    }
-    catch(const Error& e)
-    {
-        e.ErrorArgument();
-    }
-}
-
+#include <string>
+#include <iostream>
+#include <cstdlib>
+#include <vector>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netdb.h>
+#include "Error.hpp"
+#include "Data.hpp"
+#include "Server.hpp"
