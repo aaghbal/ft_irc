@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/13 15:17:48 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 15:29:19 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,7 @@ void Server::recive_data(int i)
         cmd = split_cmd(this->clients[i - 1].buff);
         int fd_rec = this->client_name[cmd[1]];
         send(fd_rec, cmd[2].c_str(), cmd[2].size(), 0);
+        send(fd_rec, "\n", 1, 0);
         cmd.clear();
     }
 }
@@ -215,7 +216,6 @@ void Server::init_client(int i)
         {
             this->clients[i].set_username(this->clients[i].buff);
             this->clients[i].info_client_fin = true;
-            send(this->clients[i].get_fd_client(), "command ", 9, 0);
         }
     }
     if (this->clients[i].authenticate == false)
