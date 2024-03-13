@@ -3,15 +3,15 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+         #
+#    By: aoutifra <aoutifra@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/01 15:04:00 by aaghbal           #+#    #+#              #
-#    Updated: 2024/03/10 12:06:40 by aaghbal          ###   ########.fr        #
+#    Updated: 2024/03/13 01:45:46 by aoutifra         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 SRC = $(wildcard *.cpp)
 INC = $(wildcard *.hpp)
 NAME = ircserv

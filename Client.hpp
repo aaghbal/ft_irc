@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.hpp                                         :+:      :+:    :+:   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aoutifra <aoutifra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 16:04:44 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 01:47:09 by aoutifra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,5 @@ class Client {
         std::string     &get_nickname(void);
         std::string     &get_username(void);
         std::string     &get_password(void);
-        Client();
+        Client(int fd);
 };

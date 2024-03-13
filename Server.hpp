@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aoutifra <aoutifra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/12 16:27:17 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 00:19:53 by aoutifra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ class Server
         std::string                         client_pass;
         struct sockaddr_in                  sockinfo;
         std::vector<struct pollfd>          polfd;
-        std::vector<Client>                 clients;
-        std::vector<struct sockaddr_in>     client_info;
+        std::vector<Client *>                clients;
         socklen_t                           len;
         
 
