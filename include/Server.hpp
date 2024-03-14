@@ -6,13 +6,13 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/14 12:00:38 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/14 14:46:46 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "Header.hpp"
+#include "../include/Header.hpp"
 
 class Client;
 
@@ -29,6 +29,7 @@ class Server
         std::vector<Client>                 clients;
         std::vector<struct sockaddr_in>     client_info;
         std::map<std::string, int>          client_name;
+        std::map<Channel>                   client_name;
         socklen_t                           len;
         
 
