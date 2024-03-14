@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/13 14:46:26 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 16:12:29 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ class Server
         std::vector<Client>                 clients;
         std::vector<struct sockaddr_in>     client_info;
         std::map<std::string, int>          client_name;
-        std::vector<std::string>            cmd;
         socklen_t                           len;
         
 

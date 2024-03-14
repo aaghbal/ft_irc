@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/13 15:29:19 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/13 16:32:06 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,11 +173,19 @@ void Server::recive_data(int i)
         init_client(i - 1);
     else
     {
-        cmd = split_cmd(this->clients[i - 1].buff);
-        int fd_rec = this->client_name[cmd[1]];
-        send(fd_rec, cmd[2].c_str(), cmd[2].size(), 0);
-        send(fd_rec, "\n", 1, 0);
-        cmd.clear();
+        this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
+        if ( this->clients[i - 1].cmd[0] == "PRIVMSG")
+        {
+            int fd_rec = this->client_name[this->clients[i - 1].cmd[1]];
+            if (fd_rec == 0)
+                send(this->clients[i - 1].get_fd_client(),  "This client does not exist\n", 28, 0);
+            else if (fd_rec != this->clients[i - 1].get_fd_client())
+            {
+                send(fd_rec,  this->clients[i - 1].cmd[2].c_str(),  this->clients[i - 1].cmd[2].size(), 0);
+                send(fd_rec, "\n", 1, 0);
+                this->clients[i - 1].cmd.clear();
+            }
+        }
     }
 }
 
