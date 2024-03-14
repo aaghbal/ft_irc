@@ -6,11 +6,11 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:32:56 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/08 11:10:08 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/14 10:43:49 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Error.hpp"
+#include "../include/Error.hpp"
 
 void Error::ErrorArgument(void) const
 {
