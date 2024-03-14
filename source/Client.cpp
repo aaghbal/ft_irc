@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.cpp                                         :+:      :+:    :+:   */
+/*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 15:25:12 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/13 13:52:19 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/14 11:16:24 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "../include/Client.hpp"
 
 Client::Client()
 {
@@ -60,10 +60,3 @@ std::string & Client::get_password(void)
 {
     return (this->password);
 }
-
-
-// void Client::init_client(void)
-// {
-//     send
-    
-// }

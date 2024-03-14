@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/13 16:12:29 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/14 12:00:38 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,5 @@ class Server
         void                        init_client(int i);
         void                        recv_data(int i);
         std::vector<std::string>    split_cmd(std::string &cmd);
+        void                        private_message(int i);
 };

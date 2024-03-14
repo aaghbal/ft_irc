@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:51:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/13 13:51:10 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/14 10:34:36 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,3 +27,4 @@
 #include "Error.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
