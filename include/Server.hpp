@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/14 14:54:03 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/15 16:39:00 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Server
         std::vector<Client>                 clients;
         std::vector<struct sockaddr_in>     client_info;
         std::map<std::string, int>          client_name;
-        std::map<Channel, int>              clien;
+        std::vector<Channel>                channels;
         socklen_t                           len;
         
 
@@ -49,6 +49,9 @@ class Server
         void                        recive_data(int i);
         void                        init_client(int i);
         void                        recv_data(int i);
+
         std::vector<std::string>    split_cmd(std::string &cmd);
         void                        private_message(int i);
+        int                         found_channel(std::string const &chan);
+        void                        join_cmd(int i);
 };

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/14 12:33:27 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/15 16:41:31 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ void Server::bind_socket(void)
 {
        try
     {
+        int opt = 1;
+        setsockopt(this->fd_s, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
         if (bind(this->fd_s,(const sockaddr *)&this->sockinfo , sizeof(this->sockinfo)) == -1)
             throw Error();
     }
@@ -116,8 +118,15 @@ void Server::check_password(int i)
     }
     else
     {
+          if (this->clients[i].num_pass == 2)
+        {
+            close(this->clients[i].get_fd_client());
+            this->polfd.erase(polfd.begin() + i + 1);
+            this->clients.erase(this->clients.begin() + i);
+            return;
+        }
         send(this->clients[i].get_fd_client(), "The password is incorrect, try again : ", 39, 0);
-        this->clients[i].num_attempts++;
+        this->clients[i].num_pass++;
     }
 }
 
@@ -165,7 +174,8 @@ void Server::recive_data(int i)
             std::cerr << "recv failed" << std::endl; 
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
-        this->clients[i - 1].buff.clear();
+        this->clients.erase(this->clients.begin() + i - 1);
+        return ;
     }
     std::cout << "clien fd : " << this->clients[i - 1].get_fd_client() << " with string : " <<  this->clients[i - 1].buff << std::endl;
     if (this->clients[i - 1].info_client_fin == false)
@@ -175,11 +185,8 @@ void Server::recive_data(int i)
         this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
         if ( this->clients[i - 1].cmd[0] == "PRIVMSG")
             private_message(i - 1);
-        // else if (this->clients[i - 1].cmd[0] == "JOIN")
-        // {
-            
-        // }
-            
+        else if (this->clients[i - 1].cmd[0] == "/join")
+            this->join_cmd(i - 1);
     }
 }
 
@@ -222,11 +229,7 @@ void Server::init_client(int i)
     }
     if (this->clients[i].authenticate == false)
     {
-        if (this->clients[i].num_attempts == 3)
-        {
-            close(this->clients[i].get_fd_client());
-            this->polfd.erase(polfd.begin() + i + 1);
-        }
+      
         this->clients[i].set_password(this->clients[i].buff);
         check_password(i);
     }
@@ -271,5 +274,34 @@ void Server::private_message(int i)
         send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
         send(fd_rec, "\n", 1, 0);
         this->clients[i].cmd.clear();
+    }
+}
+
+int Server::found_channel(std::string const &chan)
+{
+    for(size_t i = 0; i < this->channels.size(); i++)
+    {
+        if (this->channels[i].get_name_channel() == chan)
+            return (i);           
+    }
+    return (-1);
+}
+
+void Server::join_cmd(int i)
+{
+    int n_ch = this->found_channel(this->clients[i].cmd[1]);
+    if (n_ch == -1)
+    {
+        Channel ch;
+        ch.set_name(this->clients[i].cmd[1]);
+        ch._Client.push_back(this->clients[i]);
+        this->channels.push_back(ch);
+        send(this->clients[i].get_fd_client(), "Creater channel \n", 17, 0);
+    }
+    else
+    {
+        this->channels[n_ch]._Client.push_back(this->clients[i]);
+        send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
+        
     }
 }
