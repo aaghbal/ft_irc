@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 15:25:12 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/14 11:16:24 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/15 12:36:31 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,11 @@
 
 Client::Client()
 {
+    std::cout << "herrrreee" << std::endl;
     this->authenticate = false;
     this->nickname = "";
     this->username = "";
-    this->num_attempts = 0;
+    this->num_pass = 0;
     this->info_client_fin = false;
 }
 void Client::set_nickname(const std::string &niname)

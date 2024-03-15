@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/14 12:33:27 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/15 13:01:41 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,12 @@ void Server::bind_socket(void)
 {
        try
     {
+        int yes = 1;
+        if (setsockopt(this->fd_s,SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+            std::cout << "errrrrrrooooorrr" << std::endl;
         if (bind(this->fd_s,(const sockaddr *)&this->sockinfo , sizeof(this->sockinfo)) == -1)
             throw Error();
+            
     }
     catch(const Error& e)
     {
@@ -116,8 +120,16 @@ void Server::check_password(int i)
     }
     else
     {
-        send(this->clients[i].get_fd_client(), "The password is incorrect, try again : ", 39, 0);
-        this->clients[i].num_attempts++;
+        if (this->clients[i].num_pass == 2)
+        {
+            send(this->clients[i].get_fd_client(), "Incorrect password. Please try again : ", 39, 0);
+            close(this->clients[i].get_fd_client());
+            this->clients.erase(this->clients.begin() + i);
+            this->polfd.erase(polfd.begin() + i + 1);
+            return ;   
+        }
+        send(this->clients[i].get_fd_client(), "Incorrect password. Please try again : ", 39, 0);
+        this->clients[i].num_pass++;
     }
 }
 
@@ -165,7 +177,8 @@ void Server::recive_data(int i)
             std::cerr << "recv failed" << std::endl; 
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
-        this->clients[i - 1].buff.clear();
+        this->clients.erase(this->clients.begin() + i - 1);
+        return ;
     }
     std::cout << "clien fd : " << this->clients[i - 1].get_fd_client() << " with string : " <<  this->clients[i - 1].buff << std::endl;
     if (this->clients[i - 1].info_client_fin == false)
@@ -222,11 +235,6 @@ void Server::init_client(int i)
     }
     if (this->clients[i].authenticate == false)
     {
-        if (this->clients[i].num_attempts == 3)
-        {
-            close(this->clients[i].get_fd_client());
-            this->polfd.erase(polfd.begin() + i + 1);
-        }
         this->clients[i].set_password(this->clients[i].buff);
         check_password(i);
     }
