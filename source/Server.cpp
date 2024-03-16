@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/15 16:41:31 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/16 17:01:29 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,27 +105,42 @@ void Server::run_server()
     listen_requ();
     accept_data();
 }
+bool Server::check_recv_message(int i)
+{
+    if (this->nbyteread <= 0)
+    {
+        if (this->nbyteread == 0)
+            std::cout << "this client " << i << " closed" << std::endl;
+        else
+            std::cerr << "recv failed" << std::endl; 
+        close(this->polfd[i].fd);
+        this->polfd.erase(polfd.begin() + i);
+        this->clients.erase(this->clients.begin() + i - 1);
+        return true;
+    }
+    return false;
+}
 
 void Server::check_password(int i)
 {
-    if(this->clients[i].get_password().back() == '\n')
-            this->clients[i].get_password().pop_back();
-    if (this->password == this->clients[i].get_password())
+    if(this->clients[i].cmd.size() != 2 || (this->clients[i].cmd[0] != "PASS"))
     {
-        send(this->clients[i].get_fd_client(),  "Welcome to the server\n", 22, 0);
-        send(this->clients[i].get_fd_client(), "nickname ", 10, 0);
-        this->clients[i].authenticate = true;
+        send(this->clients[i].get_fd_client(), "ircserv 461 PASS :Not enough parameters\n", 40, 0);
+        return ;
     }
+    if (this->password == this->clients[i].cmd[1])
+        this->clients[i].authenticate = true;
     else
     {
-          if (this->clients[i].num_pass == 2)
+        if (this->clients[i].num_pass == 2)
         {
+            send(this->clients[i].get_fd_client(), "Access denied!! 3 attempts completed.\n", 38, 0);
             close(this->clients[i].get_fd_client());
             this->polfd.erase(polfd.begin() + i + 1);
             this->clients.erase(this->clients.begin() + i);
             return;
         }
-        send(this->clients[i].get_fd_client(), "The password is incorrect, try again : ", 39, 0);
+        send(this->clients[i].get_fd_client(), "The password is incorrect!, try again\n", 38, 0);
         this->clients[i].num_pass++;
     }
 }
@@ -142,7 +157,6 @@ void Server::add_new_connection(void)
         if (new_fd_s == -1)
             throw Error();
         cl.set_fd_client(new_fd_s);
-        send(new_fd_s, "connection successful\nEnter server password ", 45, 0);
         this->clients.push_back(cl);
         this->polfd.push_back(init_pollfd(new_fd_s));
         this->client_info.push_back(clinfo);
@@ -166,26 +180,21 @@ int    myRevc(std::string &str , int fd)
 void Server::recive_data(int i)
 {
     this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
-    if (this->nbyteread <= 0)
+    if (check_recv_message(i))
+        return ;
+    this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
+    if((this->clients[i - 1].cmd.size() == 0))
     {
-        if (this->nbyteread == 0)
-            std::cout << "this client " << i << " closed" << std::endl;
-        else
-            std::cerr << "recv failed" << std::endl; 
-        close(this->polfd[i].fd);
-        this->polfd.erase(polfd.begin() + i);
-        this->clients.erase(this->clients.begin() + i - 1);
+        this->clients[i - 1].cmd.clear();
         return ;
     }
-    std::cout << "clien fd : " << this->clients[i - 1].get_fd_client() << " with string : " <<  this->clients[i - 1].buff << std::endl;
     if (this->clients[i - 1].info_client_fin == false)
         init_client(i - 1);
     else
     {
-        this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
         if ( this->clients[i - 1].cmd[0] == "PRIVMSG")
             private_message(i - 1);
-        else if (this->clients[i - 1].cmd[0] == "/join")
+        else if (this->clients[i - 1].cmd[0] == "JOIN")
             this->join_cmd(i - 1);
     }
 }
@@ -203,59 +212,59 @@ pollfd Server::init_pollfd(int fd)
 
 void Server::init_client(int i)
 {
-    if (this->clients[i].authenticate){
-        if (this->clients[i].buff.empty()){
-            if (this->clients[i].get_nickname().empty())
-                send(this->clients[i].get_fd_client(), "please enter valid `nickname`: ", 31, 0);
-            else if (this->clients[i].get_username().empty())
-                send(this->clients[i].get_fd_client(), "please enter valid `username`:  ", 31, 0);
-        }
-        else if (this->clients[i].get_nickname().empty())
+    if (this->clients[i].authenticate)
+    {
+        if (this->clients[i].get_nickname().empty())
         {
-            if (this->client_name.find(this->clients[i].buff) != this->client_name.end())
-                send(this->clients[i].get_fd_client(), "this nickname had already taken Try another one: ", 50, 0);
+            if((this->clients[i].cmd.size() != 2 || this->clients[i].cmd[0] != "NICK"))
+            {
+                send(this->clients[i].get_fd_client(), "Syntax error : NICK <nickname>\n", 32, 0);
+                return ;
+            }
+            if (this->client_name.find(this->clients[i].cmd[1]) != this->client_name.end())
+                send(this->clients[i].get_fd_client(), "this nickname had already taken Try another one.\n", 49, 0);
             else
             {
-                this->client_name[this->clients[i].buff] = this->clients[i].get_fd_client();
-                this->clients[i].set_nickname(this->clients[i].buff);
-                send(this->clients[i].get_fd_client(), "username ", 10, 0);
+                this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
+                this->clients[i].set_nickname(this->clients[i].cmd[1]);
             }
         }
         else if (this->clients[i].get_username().empty())
         {
+            if(this->clients[i].cmd.size() != 2 || (this->clients[i].cmd[0] != "USER"))
+            {
+                send(this->clients[i].get_fd_client(), "Syntax error : USER <username>\n", 32, 0);
+                return ;
+            }
             this->clients[i].set_username(this->clients[i].buff);
+                send(this->clients[i].get_fd_client(),  "Welcome to the server\n", 22, 0);
             this->clients[i].info_client_fin = true;
         }
     }
     if (this->clients[i].authenticate == false)
-    {
-      
-        this->clients[i].set_password(this->clients[i].buff);
         check_password(i);
-    }
 }
 
 std::vector<std::string> Server::split_cmd(std::string &cmd)
 {
     std::vector<std::string>    MySplitData;
     std::string                 token;
-    int                         nsp;
-    int                         count = 0;
 
-    while(cmd.find(' ') != std::string::npos)
+    std::cout << ">>> " << cmd << std::endl;
+    for(size_t i = 0; i < cmd.size() ; i++)
     {
-        if (count == 2)
-            break;
-        nsp = cmd.find(' ');
-        token = cmd.substr(0, nsp);
-        if (!token.empty() || !token.find(9))
+        char c = cmd[i];
+        if(c != ' ' && c != '\t')
+            token += c;
+        else if (!token.empty())
         {
             MySplitData.push_back(token);
-            count++;
+            token.clear();
         }
-        cmd.erase(0, nsp + 1);
     }
-    MySplitData.push_back(cmd);
+    if (!token.empty())
+        MySplitData.push_back(token);
+    cmd.clear();
     return (MySplitData);
 }
 
@@ -304,4 +313,17 @@ void Server::join_cmd(int i)
         send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
         
     }
+}
+
+
+
+
+void    Server::print(std::vector<std::string> &cmd, int fd)
+{
+    std::cout << "size " << cmd.size() << std::endl;
+    for (size_t i = 0; i < cmd.size(); i++)
+    {
+        std::cout << "clien fd : " << this->clients[fd - 1].get_fd_client() << " with  :[" <<  cmd[i] << "]: ";
+    }
+    std::cout << std::endl;
 }

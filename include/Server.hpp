@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/15 16:39:00 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/16 11:48:09 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Server
         void                        accept_data(void);
         void                        run_server();
         void                        set_password(const std::string &password);
+        bool                        check_recv_message(int i);
         void                        check_password(int i);
         struct  pollfd              init_pollfd(int fd);
         void                        add_new_connection(void);
@@ -54,4 +55,5 @@ class Server
         void                        private_message(int i);
         int                         found_channel(std::string const &chan);
         void                        join_cmd(int i);
+        void                        print(std::vector<std::string> &cmd, int fd);
 };
