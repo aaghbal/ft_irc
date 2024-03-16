@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/16 17:01:29 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/16 22:08:06 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,8 @@ bool Server::check_recv_message(int i)
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
         this->clients.erase(this->clients.begin() + i - 1);
+        if (this->channels.size() != 0)
+            this->channels.erase(this->channels.begin() + i - 1);
         return true;
     }
     return false;
@@ -311,7 +313,6 @@ void Server::join_cmd(int i)
     {
         this->channels[n_ch]._Client.push_back(this->clients[i]);
         send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
-        
     }
 }
 
