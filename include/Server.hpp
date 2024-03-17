@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/16 11:48:09 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/17 22:29:57 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,7 @@ class Server
         int                         found_channel(std::string const &chan);
         void                        join_cmd(int i);
         void                        print(std::vector<std::string> &cmd, int fd);
+        void                        split_target(std::string &cmd, int i);
+        void                        not_found_target_msg(int i, int j);
+        void                        send_all_arg(int i, int fd_rec);
 };

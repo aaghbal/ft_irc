@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/16 22:08:06 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/17 22:42:16 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,8 @@ bool Server::check_recv_message(int i)
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
         this->clients.erase(this->clients.begin() + i - 1);
-        if (this->channels.size() != 0)
-            this->channels.erase(this->channels.begin() + i - 1);
+        // if (this->channels.size() != 0)
+        //     this->channels.erase(this->channels.begin() + i - 1);
         return true;
     }
     return false;
@@ -223,8 +223,12 @@ void Server::init_client(int i)
                 send(this->clients[i].get_fd_client(), "Syntax error : NICK <nickname>\n", 32, 0);
                 return ;
             }
-            if (this->client_name.find(this->clients[i].cmd[1]) != this->client_name.end())
-                send(this->clients[i].get_fd_client(), "this nickname had already taken Try another one.\n", 49, 0);
+            if (this->client_name.find(this->clients[i].cmd[1]) != this->client_name.end()){
+                
+                send(this->clients[i].get_fd_client(), "ircserver 433 ", 15, 0);
+                send(this->clients[i].get_fd_client(),this->clients[i].cmd[1].c_str() , this->clients[i].cmd[1].size(), 0);
+                send(this->clients[i].get_fd_client(), " :Nickname is already in use\n", 29, 0);
+            }
             else
             {
                 this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
@@ -252,7 +256,6 @@ std::vector<std::string> Server::split_cmd(std::string &cmd)
     std::vector<std::string>    MySplitData;
     std::string                 token;
 
-    std::cout << ">>> " << cmd << std::endl;
     for(size_t i = 0; i < cmd.size() ; i++)
     {
         char c = cmd[i];
@@ -272,20 +275,39 @@ std::vector<std::string> Server::split_cmd(std::string &cmd)
 
 void Server::private_message(int i)
 {
-    int fd_rec = this->client_name[this->clients[i].cmd[1]];
-    if (this->clients[i].cmd[1].empty())
-        send(this->clients[i].get_fd_client(),  "\n", 28, 0);
-    else if (this->clients[i].cmd[2][0] != ':')
-        send(this->clients[i].get_fd_client(),  "The message must begin with < : >\n", 35, 0);
-    else if (fd_rec == 0)
-        send(this->clients[i].get_fd_client(),  "This client does not exist\n", 28, 0);
-    else if (fd_rec != this->clients[i].get_fd_client())
+    bool flag = false;
+    split_target(this->clients[i].cmd[1], i);
+    if (this->clients[i].split_targ.size() == 0)
+    {
+        send(this->clients[i].get_fd_client(),  "ircserv 411 : No recipient given PRIVMSG\n", 42, 0);
+            return;
+    }
+    if(this->clients[i].cmd[2][0] == ':')
     {
         this->clients[i].cmd[2].erase(0, 1);
-        send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-        send(fd_rec, "\n", 1, 0);
-        this->clients[i].cmd.clear();
+        flag = true;
     }
+    for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
+    {
+        int fd_rec = this->client_name[this->clients[i].split_targ[j]];
+        if (this->clients[i].cmd[2].empty())
+        {
+            send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
+            break ;
+        }
+        else if (fd_rec == 0)
+            not_found_target_msg(i, j);
+        else if (fd_rec != this->clients[i].get_fd_client())
+        {
+            if (flag)
+                send_all_arg(i, fd_rec);
+            else
+                send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
+            send(fd_rec, "\n", 1, 0);
+        }
+    }
+    this->clients[i].cmd.clear();
+    this->clients[i].split_targ.clear();
 }
 
 int Server::found_channel(std::string const &chan)
@@ -316,9 +338,6 @@ void Server::join_cmd(int i)
     }
 }
 
-
-
-
 void    Server::print(std::vector<std::string> &cmd, int fd)
 {
     std::cout << "size " << cmd.size() << std::endl;
@@ -327,4 +346,37 @@ void    Server::print(std::vector<std::string> &cmd, int fd)
         std::cout << "clien fd : " << this->clients[fd - 1].get_fd_client() << " with  :[" <<  cmd[i] << "]: ";
     }
     std::cout << std::endl;
+}
+void Server::split_target(std::string &cmd, int fd)
+{
+    std::string token = "";
+    for(size_t i = 0; i < cmd.size(); i++)
+    {
+        char c = cmd[i];
+        if(c != ',')
+            token += c;
+        else if (!token.empty())
+        {
+           
+            this->clients[fd].split_targ.push_back(token);
+            token.clear();
+        }
+    }
+    if (!token.empty())
+            this->clients[fd].split_targ.push_back(token);
+}
+void Server::not_found_target_msg(int i, int j)
+{
+    send(this->clients[i].get_fd_client(),  "ircserv 401 ", 13, 0);
+    send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str() , this->clients[i].split_targ[j].size(), 0);
+    send(this->clients[i].get_fd_client(),  " :No such nick\n", 15, 0);
+}
+
+void Server::send_all_arg(int i, int fd_rec)
+{
+    for (size_t k = 2; k < this->clients[i].cmd.size() ; k++)
+    {
+        send(fd_rec,  this->clients[i].cmd[k].c_str(),  this->clients[i].cmd[k].size(), 0);
+        send(fd_rec,  " ", 1, 0);
+    }
 }
