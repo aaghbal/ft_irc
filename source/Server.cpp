@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/17 22:42:16 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/18 14:26:11 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,21 +289,26 @@ void Server::private_message(int i)
     }
     for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
     {
-        int fd_rec = this->client_name[this->clients[i].split_targ[j]];
-        if (this->clients[i].cmd[2].empty())
+        if (this->clients[i].split_targ[j][0] == '#')
+            priv_msg_chan(i, j, flag);
+        else
         {
-            send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
-            break ;
-        }
-        else if (fd_rec == 0)
-            not_found_target_msg(i, j);
-        else if (fd_rec != this->clients[i].get_fd_client())
-        {
-            if (flag)
-                send_all_arg(i, fd_rec);
-            else
-                send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-            send(fd_rec, "\n", 1, 0);
+            int fd_rec = this->client_name[this->clients[i].split_targ[j]];
+            if (this->clients[i].cmd[2].empty())
+            {
+                send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
+                break ;
+            }
+            else if (fd_rec == 0)
+                not_found_target_msg(i, j, 1);
+            else if (fd_rec != this->clients[i].get_fd_client())
+            {
+                if (flag)
+                    send_all_arg(i, fd_rec);
+                else
+                    send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
+                send(fd_rec, "\n", 1, 0);
+            }   
         }
     }
     this->clients[i].cmd.clear();
@@ -365,11 +370,15 @@ void Server::split_target(std::string &cmd, int fd)
     if (!token.empty())
             this->clients[fd].split_targ.push_back(token);
 }
-void Server::not_found_target_msg(int i, int j)
+void Server::not_found_target_msg(int i, int j, int fla)
 {
     send(this->clients[i].get_fd_client(),  "ircserv 401 ", 13, 0);
     send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str() , this->clients[i].split_targ[j].size(), 0);
-    send(this->clients[i].get_fd_client(),  " :No such nick\n", 15, 0);
+    if (fla)
+        send(this->clients[i].get_fd_client(),  " :No such nick\n", 15, 0);
+    else
+        send(this->clients[i].get_fd_client(),  " :No such channel\n", 18, 0);
+        
 }
 
 void Server::send_all_arg(int i, int fd_rec)
@@ -379,4 +388,26 @@ void Server::send_all_arg(int i, int fd_rec)
         send(fd_rec,  this->clients[i].cmd[k].c_str(),  this->clients[i].cmd[k].size(), 0);
         send(fd_rec,  " ", 1, 0);
     }
+}
+
+void Server::priv_msg_chan(int i, int j, bool flag)
+{
+    for (size_t k = 0; k < this->channels.size(); k++)
+    {
+        if (this->channels[k].get_name_channel() == this->clients[i].split_targ[j])
+        {
+            for (size_t c = 0; c < this->channels[k]._Client.size(); c++)
+            {
+                if ((this->channels[k]._Client[c].get_fd_client() != this->clients[i].get_fd_client()))
+                {
+                    if (flag)
+                        send_all_arg(i, this->channels[k]._Client[c].get_fd_client());
+                    else
+                        send(this->channels[k]._Client[c].get_fd_client(),  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
+                }
+            }
+            return ;
+        }
+    }
+    not_found_target_msg(i,j,0);
 }
