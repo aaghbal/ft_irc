@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/18 22:53:06 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/16 11:48:09 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ class Server
         std::map<std::string, int>          client_name;
         std::vector<Channel>                channels;
         socklen_t                           len;
-        
 
     public :
         void                        init_sockinfo();
@@ -50,16 +49,11 @@ class Server
         void                        recive_data(int i);
         void                        init_client(int i);
         void                        recv_data(int i);
-
         std::vector<std::string>    split_cmd(std::string &cmd);
         void                        private_message(int i);
         int                         found_channel(std::string const &chan);
         void                        join_cmd(int i);
         void                        print(std::vector<std::string> &cmd, int fd);
-        void                        split_target(std::string &cmd, int i);
-        void                        not_found_target_msg(int i, int j, int fla);
-        void                        send_all_arg(int i, int fd_rec);
-        void                        priv_msg_chan(int i, int j, bool flag);
-        int                         invite_check(std::string &nick, std::string &chan, int fd);
         bool                        check_client_channel(std::string name,int fd);
+        int                         invite_check(std::string &nick, std::string &chan, int fd);
 };
