@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/18 23:10:50 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/19 13:50:38 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,8 +224,11 @@ void Server::recive_data(int i)
                         send(fd, " have been invited to join the channel\n", 39, 0);
                     }   
                 }
+                else if (this->clients[i - 1].cmd[0] == "KICK")
+                    kick_command(i - 1);
                 break;
         }
+         this->clients[i -1].cmd.clear();
     }
 }
 
@@ -248,7 +251,7 @@ int Server::invite_check(std::string &nick, std::string &chan, int fd)
         send(fd, "This channel does not exist\n", 28, 0);
         return (-1);
     }
-    if (check_client_channel(nick, ch))
+    if (check_client_channel(nick, ch, 0))
     {
         send(fd, "This client is allready in this Channel\n", 39, 0);
         return (-1);
@@ -256,16 +259,60 @@ int Server::invite_check(std::string &nick, std::string &chan, int fd)
     return (fd_rec);
 }
 
-bool Server::check_client_channel(std::string name,int ch_index)
+bool Server::check_client_channel(std::string name,int ch_index, int flag)
 {
     for (size_t i = 0; i < this->channels[ch_index]._Client.size(); i++)
     {
         if (this->channels[ch_index]._Client[i].get_nickname() == name)
+        {
+            if (flag)
+            {
+                this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
+            }
             return true;
+        }
     }
     return false;
 }
 
+void Server::kick_command(int i)
+{
+    int num_ch = found_channel(this->clients[i].cmd[1]);
+    if (num_ch == -1)
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 403 ", 14, 0);
+        send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
+        send(this->clients[i].get_fd_client(), " : No such channel\n", 19, 0);
+        return ;
+    }
+    if (this->channels[num_ch].joined_in_channel(this->clients[i].get_fd_client()) == false)
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 442 ", 14, 0);
+        send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
+        send(this->clients[i].get_fd_client(), " :You're not on that channel\n", 29, 0);
+        return ;
+    }
+    if (this->channels[num_ch].is_operator(this->clients[i].get_fd_client()) == false)
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 482 ", 14, 0);
+        send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
+        send(this->clients[i].get_fd_client(), " :You're not channel operator\n", 30, 0); 
+        return ;
+    }
+    split_target(this->clients[i].cmd[2], i);
+    for (size_t j = 0; j < this->clients[i].split_targ.size() ; j++)
+    {
+        if (check_client_channel(this->clients[i].split_targ[j], num_ch, 1) == false)
+        {
+            send(this->clients[i].get_fd_client(), "ircserver 441 ", 14, 0);
+            send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str(), this->clients[i].split_targ[j].size(), 0);
+            send(this->clients[i].get_fd_client(), " ", 1, 0);
+            send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
+            send(this->clients[i].get_fd_client(), " :They aren't on that channel\n", 30, 0); 
+        }
+    }
+    this->clients[i].split_targ.clear();
+}
 pollfd Server::init_pollfd(int fd)
 {
     struct  pollfd pfd;
@@ -376,7 +423,6 @@ void Server::private_message(int i)
             }   
         }
     }
-    this->clients[i].cmd.clear();
     this->clients[i].split_targ.clear();
 }
 
@@ -398,6 +444,7 @@ void Server::join_cmd(int i)
         Channel ch;
         ch.set_name(this->clients[i].cmd[1]);
         ch._Client.push_back(this->clients[i]);
+        ch.operat.push_back(this->clients[i].get_fd_client());
         this->channels.push_back(ch);
         send(this->clients[i].get_fd_client(), "Creater channel \n", 17, 0);
     }
@@ -406,6 +453,7 @@ void Server::join_cmd(int i)
         this->channels[n_ch]._Client.push_back(this->clients[i]);
         send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
     }
+    this->clients[i].cmd.clear();
 }
 
 void    Server::print(std::vector<std::string> &cmd, int fd)
