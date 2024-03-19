@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/19 13:50:38 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/19 16:12:24 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,7 @@ void Server::recive_data(int i)
     this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
     if (check_recv_message(i))
         return ;
+    std::cout << this->clients[i - 1].buff << "  " <<std::endl; 
     this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
     if((this->clients[i - 1].cmd.size() == 0))
     {
@@ -266,9 +267,7 @@ bool Server::check_client_channel(std::string name,int ch_index, int flag)
         if (this->channels[ch_index]._Client[i].get_nickname() == name)
         {
             if (flag)
-            {
                 this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
-            }
             return true;
         }
     }
@@ -299,6 +298,11 @@ void Server::kick_command(int i)
         send(this->clients[i].get_fd_client(), " :You're not channel operator\n", 30, 0); 
         return ;
     }
+    erase_client_from_cha(i, num_ch);
+    this->clients[i].split_targ.clear();
+}
+void Server::erase_client_from_cha(int i, int num_ch)
+{
     split_target(this->clients[i].cmd[2], i);
     for (size_t j = 0; j < this->clients[i].split_targ.size() ; j++)
     {
@@ -311,7 +315,6 @@ void Server::kick_command(int i)
             send(this->clients[i].get_fd_client(), " :They aren't on that channel\n", 30, 0); 
         }
     }
-    this->clients[i].split_targ.clear();
 }
 pollfd Server::init_pollfd(int fd)
 {
@@ -438,6 +441,11 @@ int Server::found_channel(std::string const &chan)
 
 void Server::join_cmd(int i)
 {
+    if(this->clients[i].cmd[1][0] != '#')
+    {
+        send(this->clients[i].get_fd_client(), "Channel name begins with '#'\n", 29, 0);
+        return ;
+    }
     int n_ch = this->found_channel(this->clients[i].cmd[1]);
     if (n_ch == -1)
     {
@@ -448,12 +456,11 @@ void Server::join_cmd(int i)
         this->channels.push_back(ch);
         send(this->clients[i].get_fd_client(), "Creater channel \n", 17, 0);
     }
-    else
+    else if (this->clients[i].cmd[1][0] == '#')
     {
         this->channels[n_ch]._Client.push_back(this->clients[i]);
         send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
     }
-    this->clients[i].cmd.clear();
 }
 
 void    Server::print(std::vector<std::string> &cmd, int fd)

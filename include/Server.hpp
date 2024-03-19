@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/19 13:37:34 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/19 15:14:26 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,5 @@ class Server
         int                         invite_check(std::string &nick, std::string &chan, int fd);
         bool                        check_client_channel(std::string name,int fd, int flag);
         void                        kick_command(int i);
+        void                        erase_client_from_cha(int i, int num_ch);
 };
