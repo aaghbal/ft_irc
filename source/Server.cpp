@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/19 16:12:24 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/20 15:47:42 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,39 +195,32 @@ void Server::recive_data(int i)
         init_client(i - 1);
     else
     {
-        switch (this->clients[i - 1].cmd.size())
+        switch (this->clients[i - 1].cmd[0][0])
         {
-            case 0:
-                break;
-            case 1:
-                if (this->clients[i - 1].cmd[0] == "QUIT")
-                {
+            case 'Q':
                     close(this->clients[i - 1].get_fd_client());
                     this->polfd.erase(polfd.begin() + i);
                     this->clients.erase(this->clients.begin() + i - 1);
                     if (this->channels.size() != 0)
                         this->channels.erase(this->channels.begin() + i - 1);
-                }
-                break;
-            case 2:
-                if (this->clients[i - 1].cmd[0] == "PRIVMSG")
+                    break;
+            case 'P':
                     private_message(i - 1);
-                else if (this->clients[i - 1].cmd[0] == "JOIN")
+                    break;
+            case 'J':
                     this->join_cmd(i - 1);
-                break;
-            case 3:
-                if (this->clients[i - 1].cmd[0] == "INVITE")
-                {
-                    int fd = this->invite_check(this->clients[i - 1].cmd[1], this->clients[i - 1].cmd[2], this->clients[i - 1].get_fd_client()) ;
-                    if(fd != -1)
-                    {
-                        send(fd, this->clients[i - 1].get_nickname().c_str(), this->clients[i - 1].get_nickname().size(), 0);
-                        send(fd, " have been invited to join the channel\n", 39, 0);
-                    }   
-                }
-                else if (this->clients[i - 1].cmd[0] == "KICK")
+                    break;
+            // case 'I':
+            //         int fd = this->invite_check(this->clients[i - 1].cmd[1], this->clients[i - 1].cmd[2], this->clients[i - 1].get_fd_client()) ;
+            //         if(fd != -1)
+            //         {
+            //             send(fd, this->clients[i - 1].get_nickname().c_str(), this->clients[i - 1].get_nickname().size(), 0);
+            //             send(fd, " have been invited to join the channel\n", 39, 0);
+            //         } 
+            //         break;
+            case 'K':
                     kick_command(i - 1);
-                break;
+                    break;
         }
          this->clients[i -1].cmd.clear();
     }
@@ -316,6 +309,44 @@ void Server::erase_client_from_cha(int i, int num_ch)
         }
     }
 }
+void Server::get_response_name(std::string &cmd, int i, int fd)
+{
+    std::string msg;
+    msg += this->clients[i].get_nickname();
+    msg += '!';
+    msg += this->clients[i].get_username();
+    msg += '@';
+    msg += inet_ntoa(this->sockinfo.sin_addr);
+    if (this->clients[i].cmd[0] == "PRIVMSG")
+        msg += " PRIVMSG ";
+    else if (this->clients[i].cmd[0] == "JOIN")
+        msg += " JOIN ";
+    msg += cmd;
+    msg += " ";
+    send(fd, msg.c_str(), msg.size(), 0);
+}
+
+void    Server::priv_msg_user(int i, int j)
+{
+    int fd_rec = this->client_name[this->clients[i].split_targ[j]];
+    if (this->clients[i].cmd[2].empty())
+    {
+        send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
+        return ;
+    }
+    else if (fd_rec == 0)
+        not_found_target_msg(i, j, 1);
+    else if (fd_rec != this->clients[i].get_fd_client())
+    {
+        get_response_name(this->clients[i].split_targ[j], i, fd_rec);
+        if (this->clients[i].cmd[2][0] == ':')
+            send_all_arg(i, fd_rec);
+        else
+            send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
+        send(fd_rec, "\n", 1, 0);
+    }   
+}
+
 pollfd Server::init_pollfd(int fd)
 {
     struct  pollfd pfd;
@@ -357,7 +388,7 @@ void Server::init_client(int i)
                 send(this->clients[i].get_fd_client(), "Syntax error : USER <username>\n", 32, 0);
                 return ;
             }
-            this->clients[i].set_username(this->clients[i].buff);
+            this->clients[i].set_username(this->clients[i].cmd[1]);
                 send(this->clients[i].get_fd_client(),  "Welcome to the server\n", 22, 0);
             this->clients[i].info_client_fin = true;
         }
@@ -390,41 +421,18 @@ std::vector<std::string> Server::split_cmd(std::string &cmd)
 
 void Server::private_message(int i)
 {
-    bool flag = false;
     split_target(this->clients[i].cmd[1], i);
     if (this->clients[i].split_targ.size() == 0)
     {
         send(this->clients[i].get_fd_client(),  "ircserv 411 : No recipient given PRIVMSG\n", 42, 0);
             return;
     }
-    if(this->clients[i].cmd[2][0] == ':')
-    {
-        this->clients[i].cmd[2].erase(0, 1);
-        flag = true;
-    }
     for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
     {
         if (this->clients[i].split_targ[j][0] == '#')
-            priv_msg_chan(i, j, flag);
+            priv_msg_chan(i, j);
         else
-        {
-            int fd_rec = this->client_name[this->clients[i].split_targ[j]];
-            if (this->clients[i].cmd[2].empty())
-            {
-                send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
-                break ;
-            }
-            else if (fd_rec == 0)
-                not_found_target_msg(i, j, 1);
-            else if (fd_rec != this->clients[i].get_fd_client())
-            {
-                if (flag)
-                    send_all_arg(i, fd_rec);
-                else
-                    send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-                send(fd_rec, "\n", 1, 0);
-            }   
-        }
+            priv_msg_user(i, j);
     }
     this->clients[i].split_targ.clear();
 }
@@ -441,7 +449,7 @@ int Server::found_channel(std::string const &chan)
 
 void Server::join_cmd(int i)
 {
-    if(this->clients[i].cmd[1][0] != '#')
+    if(this->clients[i].cmd[1][0] != '#' || this->clients[i].cmd[1].size() < 2)
     {
         send(this->clients[i].get_fd_client(), "Channel name begins with '#'\n", 29, 0);
         return ;
@@ -458,6 +466,11 @@ void Server::join_cmd(int i)
     }
     else if (this->clients[i].cmd[1][0] == '#')
     {
+        for (size_t c = 0; c < this->channels[n_ch]._Client.size(); c++)
+        {
+            get_response_name(this->channels[n_ch].get_name_channel(), i, this->channels[n_ch]._Client[c].get_fd_client());  
+            send(this->channels[n_ch]._Client[c].get_fd_client(), "\n", 1, 0);
+        }
         this->channels[n_ch]._Client.push_back(this->clients[i]);
         send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
     }
@@ -510,7 +523,7 @@ void Server::send_all_arg(int i, int fd_rec)
     }
 }
 
-void Server::priv_msg_chan(int i, int j, bool flag)
+void Server::priv_msg_chan(int i, int j)
 {
     for (size_t k = 0; k < this->channels.size(); k++)
     {
@@ -520,10 +533,12 @@ void Server::priv_msg_chan(int i, int j, bool flag)
             {
                 if ((this->channels[k]._Client[c].get_fd_client() != this->clients[i].get_fd_client()))
                 {
-                    if (flag)
+                    get_response_name(this->clients[i].split_targ[j], i, this->channels[k]._Client[c].get_fd_client());
+                    if (this->clients[i].cmd[2][0] == ':')
                         send_all_arg(i, this->channels[k]._Client[c].get_fd_client());
                     else
                         send(this->channels[k]._Client[c].get_fd_client(),  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
+                    send(this->channels[k]._Client[c].get_fd_client(),  "\n", 1, 0);
                 }
             }
             return ;
