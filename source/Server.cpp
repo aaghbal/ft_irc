@@ -6,11 +6,16 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/20 15:47:42 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/20 17:01:20 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Header.hpp"
+
+Server::Server()
+{
+    this->client_info.clear();
+}
 
 void Server::set_port(const char *port)
 {
@@ -161,7 +166,7 @@ void Server::add_new_connection(void)
         cl.set_fd_client(new_fd_s);
         this->clients.push_back(cl);
         this->polfd.push_back(init_pollfd(new_fd_s));
-        this->client_info.push_back(clinfo);
+        this->client_info[new_fd_s] = clinfo;
     }
     catch(const Error& e)
     {
@@ -316,7 +321,8 @@ void Server::get_response_name(std::string &cmd, int i, int fd)
     msg += '!';
     msg += this->clients[i].get_username();
     msg += '@';
-    msg += inet_ntoa(this->sockinfo.sin_addr);
+    struct sockaddr_in t = this->client_info[fd];
+    msg += inet_ntoa(t.sin_addr);
     if (this->clients[i].cmd[0] == "PRIVMSG")
         msg += " PRIVMSG ";
     else if (this->clients[i].cmd[0] == "JOIN")
