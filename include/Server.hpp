@@ -60,6 +60,8 @@ class Server
         void                        not_found_target_msg(int i, int j, int fla);
         void                        send_all_arg(int i, int fd_rec);
         void                        priv_msg_chan(int i, int j, bool flag);
-        int                         invite_check(std::string &nick, std::string &chan, int fd);
-        bool                        check_client_channel(std::string name,int fd);
+        int                         invite_check(std::string &nick, std::string &chan, int fd,bool mode);
+        bool                        check_client_channel(std::string name,int ch_index);
+        void                        invite_cmd(int i);
+
 };

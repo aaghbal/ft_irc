@@ -51,7 +51,10 @@ void Channel::set_name(std::string const &name)
 {
     this->_Name = name;
 }
-
+void Channel::set_owner(std::string const &name)
+{
+    this->OWNER_Name = name;
+}
 void Channel::Add_Client(Client &cli)
 {
     this->_Client.push_back(cli);

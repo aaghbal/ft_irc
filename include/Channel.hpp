@@ -18,13 +18,16 @@ class Channel
 {
     private:
         std::string _Name;
+        std::string OWNER_Name;
         // time_t start_time;
     public:
+        std::vector<std::string> Kiked_Client;
         std::vector<Client> _Client;
         void    set_name(std::string const &name);
         // void Set_Name(std::string Name);
         // std::string & Get_Name();
         void Add_Client(Client &cli);
+        void set_owner(std::string const &name);
         // void rm_client(Client *cli);
         std::string &get_name_channel(void);
         // ~Channel();
