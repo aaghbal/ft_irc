@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 CC = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address 
 SRC = $(wildcard ./source/*.cpp)
 INC = $(wildcard ./inlude/*.hpp)
 NAME = ircserv
