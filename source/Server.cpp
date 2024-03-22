@@ -1,14 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/20 17:01:20 by aaghbal          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+
 
 #include "../include/Header.hpp"
 
@@ -54,10 +44,12 @@ void Server::bind_socket(void)
 {
        try
     {
-        int opt = 1;
-        setsockopt(this->fd_s, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        int yes = 1;
+        if (setsockopt(this->fd_s,SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+            std::cout << "errrrrrrooooorrr" << std::endl;
         if (bind(this->fd_s,(const sockaddr *)&this->sockinfo , sizeof(this->sockinfo)) == -1)
             throw Error();
+            
     }
     catch(const Error& e)
     {
@@ -129,29 +121,6 @@ bool Server::check_recv_message(int i)
     return false;
 }
 
-void Server::check_password(int i)
-{
-    if(this->clients[i].cmd.size() != 2 || (this->clients[i].cmd[0] != "PASS"))
-    {
-        send(this->clients[i].get_fd_client(), "ircserv 461 PASS :Not enough parameters\n", 40, 0);
-        return ;
-    }
-    if (this->password == this->clients[i].cmd[1])
-        this->clients[i].authenticate = true;
-    else
-    {
-        if (this->clients[i].num_pass == 2)
-        {
-            send(this->clients[i].get_fd_client(), "Access denied!! 3 attempts completed.\n", 38, 0);
-            close(this->clients[i].get_fd_client());
-            this->polfd.erase(polfd.begin() + i + 1);
-            this->clients.erase(this->clients.begin() + i);
-            return;
-        }
-        send(this->clients[i].get_fd_client(), "The password is incorrect!, try again\n", 38, 0);
-        this->clients[i].num_pass++;
-    }
-}
 
 void Server::add_new_connection(void)
 {
@@ -219,6 +188,13 @@ void Server::recive_data(int i)
         send(this->clients[i - 1].get_fd_client(), message.c_str(), message.size(), 0);
         this->clients[i - 1].cmd.clear();
         this->disconnect_client(i - 1);
+        if (this->nbyteread == 0)
+            std::cout << "this client " << i << " closed" << std::endl;
+        else
+            std::cerr << "recv failed" << std::endl; 
+        close(this->polfd[i].fd);
+        this->polfd.erase(polfd.begin() + i);
+        this->clients.erase(this->clients.begin() + i - 1);
         return ;
     }
     else if (check == 1)
@@ -449,7 +425,10 @@ void Server::init_client(int i)
         }
     }
     if (this->clients[i].authenticate == false)
+    {
+        this->clients[i].set_password(this->clients[i].buff);
         check_password(i);
+    }
 }
 
 std::vector<std::string> Server::split_cmd(std::string &cmd)
