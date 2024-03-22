@@ -1,14 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/15 11:51:55 by aaghbal          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+
 
 #pragma once
 
@@ -23,11 +13,15 @@ class Client {
         std::string                         password;
         
     public :
+        Client();
         bool                                authenticate;
         int                                 num_pass;
         bool                                info_client_fin;
         std::string                         buff;
+        int                                 num_pass;
+
         std::vector<std::string>            cmd;
+        std::vector<std::string>            split_targ;
         void                                set_nickname(const std::string &niname);
         void                                set_username(const std::string &usname);
         void                                set_fd_client(int fd);
@@ -38,6 +32,5 @@ class Client {
         int                                 get_fd_client(void);
         std::string                         &get_nickname(void);
         std::string                         &get_username(void);
-        std::string                         &get_password(void);
-        Client();
+        std::string                         &get_password(void);                     
 };
