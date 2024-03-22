@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/20 17:01:20 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/22 21:39:06 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ void Server:: accept_data(void)
 {
     while (true)
     {
-        // std::cout << "polling..." << std::endl;
         int nm = poll(this->polfd.data(), this->polfd.size(), -1);
         if (nm == -1)
             break;
@@ -176,20 +175,29 @@ void Server::add_new_connection(void)
 
 }
 
+// int    myRevc(std::string &str , int fd)
+// {
+//     int ret = 0;
+//     str.clear();
+//     while(str.find('\n') == std::string::npos)
+//     {
+//         char tmp[1000];
+//         ret += recv(fd, tmp, 1000, 0);
+//         if (ret == 0)
+//             return -1;
+//         tmp[ret] = '\0';
+//         str += tmp;
+//         memset(tmp, 0, 1000);
+//     }
+//     return ret;
+// }
+
 int    myRevc(std::string &str , int fd)
 {
-    int ret = 0;
-    str.clear();
-    while(str.find('\n') == std::string::npos)
-    {
-        char tmp[1000];
-        ret += recv(fd, tmp, 1000, 0);
-        if (ret == 0)
-            return -1;
-        tmp[ret] = '\0';
-        str += tmp;
-        memset(tmp, 0, 1000);
-    }
+    char buff[1001];
+    int ret = recv(fd, buff, 1000, 0);
+    buff[ret - 1] = '\0';
+    str = buff;
     return ret;
 }
 
@@ -207,75 +215,42 @@ void Server::recive_data(int i)
 {
     std::string message;
     this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
-    //check if the client is disconnected
     if (check_recv_message(i))
         return ;
     this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
-    // std::cout << this->clients[i - 1].cmd.size() << std::endl;
-    int check = this->authenticate(i - 1); //hna canchecki wach kayn password wla nickname wla username
-    if(check == -1)
+    if (!this->clients[i - 1].reg_end)
     {
-        message = ":ircserver 464 Client :Password incorrect\r\n";
-        send(this->clients[i - 1].get_fd_client(), message.c_str(), message.size(), 0);
-        this->clients[i - 1].cmd.clear();
-        this->disconnect_client(i - 1);
+        authenticate(i - 1); //hna canchecki wach kayn password wla nickname wla username
         return ;
     }
-    else if (check == 1)
+    for(size_t j = 0; j < this->clients[i - 1].cmd.size(); j++)
     {
-        message = NICKNAME_IN_USE;
-        send(this->clients[i - 1].get_fd_client(), message.c_str(), message.size(), 0);
-        this->clients[i - 1].cmd.clear();
-        this->disconnect_client(i - 1);
-        return ;
+        std::cout << "[" <<this->clients[i - 1].cmd[j] << "] ";
     }
-    else if (check == 0)
-        send(this->clients[i - 1].get_fd_client(), WELCOME_MSG, strlen(WELCOME_MSG), 0);
-    std::cout << check << std::endl;
-    this->clients[i - 1].cmd.clear();
-    // std::cout << "client " << i << " : " << this->clients[i - 1].buff << std::endl; //hna kanaffichiw lmessage li jat 5dem bhadi ila bghiti tchouf rah
-    // for (size_t j = 0; j < this->clients[i - 1].cmd.size(); j++)
-    //     std::cout << "cmd : " << this->clients[i - 1].cmd[j] << std::endl;
-    
-    //  std::string message = ":irc.example.com     001 username :Welcome to the IRC server irc.example.com username! Enjoy your chat experience.\r\n";
-    // send(this->clients[i - 1].get_fd_client(), message.c_str(), message.size(), 0);
-    //print(this->clients[i - 1].cmd, i - 1);
-    // if((this->clients[i - 1].cmd.size() == 0))
-    // {
-    //     this->clients[i - 1].cmd.clear();
-    //     return ;
-    // }
-    // if (this->clients[i - 1].info_client_fin == false)
-    //     init_client(i - 1);
-    // else
-    // {
-    //     switch (this->clients[i - 1].cmd[0][0])
-    //     {
-    //         case 'Q':
-    //                 close(this->clients[i - 1].get_fd_client());
-    //                 this->polfd.erase(polfd.begin() + i);
-    //                 this->clients.erase(this->clients.begin() + i - 1);
-    //                 if (this->channels.size() != 0)
-    //                     this->channels.erase(this->channels.begin() + i - 1);
-    //                 break;
-    //         case 'P':
-    //                 private_message(i - 1);
-    //                 break;
-    //         case 'J':
-    //                 this->join_cmd(i - 1);
-    //                 break;
-    //         // case 'I':
-    //         //         int fd = this->invite_check(this->clients[i - 1].cmd[1], this->clients[i - 1].cmd[2], this->clients[i - 1].get_fd_client()) ;
-    //         //         if(fd != -1)
-    //         //         {
-    //         //             send(fd, this->clients[i - 1].get_nickname().c_str(), this->clients[i - 1].get_nickname().size(), 0);
-    //         //             send(fd, " have been invited to join the channel\n", 39, 0);
-    //         //         } 
-    //         //         break;
-    //         case 'K':
-    //                 kick_command(i - 1);
-    //                 break;
-    //     }
+    puts("");
+    switch (this->clients[i - 1].cmd[0][0])
+    {
+        case 'Q':
+                disconnect_client(i);
+                break;
+        case 'P':
+                private_message(i - 1);
+                break;
+        case 'J':
+                this->join_cmd(i - 1);
+                break;
+        // case 'I':
+        //         int fd = this->invite_check(this->clients[i - 1].cmd[1], this->clients[i - 1].cmd[2], this->clients[i - 1].get_fd_client()) ;
+        //         if(fd != -1)
+        //         {
+        //             send(fd, this->clients[i - 1].get_nickname().c_str(), this->clients[i - 1].get_nickname().size(), 0);
+        //             send(fd, " have been invited to join the channel\n", 39, 0);
+        //         } 
+        //         break;
+        case 'K':
+                kick_command(i - 1);
+                break;
+    }
         this->clients[i -1].cmd.clear();
     // }
 }
@@ -413,44 +388,44 @@ pollfd Server::init_pollfd(int fd)
 }
 
 
-void Server::init_client(int i)
-{
-    if (this->clients[i].authenticate)
-    {
-        if (this->clients[i].get_nickname().empty())
-        {
-            if((this->clients[i].cmd.size() != 2 || this->clients[i].cmd[0] != "NICK"))
-            {
-                send(this->clients[i].get_fd_client(), "Syntax error : NICK <nickname>\n", 32, 0);
-                return ;
-            }
-            if (this->client_name.find(this->clients[i].cmd[1]) != this->client_name.end()){
+// void Server::init_client(int i)
+// {
+//     if (this->clients[i].authenticate)
+//     {
+//         if (this->clients[i].get_nickname().empty())
+//         {
+//             if((this->clients[i].cmd.size() != 2 || this->clients[i].cmd[0] != "NICK"))
+//             {
+//                 send(this->clients[i].get_fd_client(), "Syntax error : NICK <nickname>\n", 32, 0);
+//                 return ;
+//             }
+//             if (this->client_name.find(this->clients[i].cmd[1]) != this->client_name.end()){
                 
-                send(this->clients[i].get_fd_client(), "ircserver 433 ", 15, 0);
-                send(this->clients[i].get_fd_client(),this->clients[i].cmd[1].c_str() , this->clients[i].cmd[1].size(), 0);
-                send(this->clients[i].get_fd_client(), " :Nickname is already in use\n", 29, 0);
-            }
-            else
-            {
-                this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
-                this->clients[i].set_nickname(this->clients[i].cmd[1]);
-            }
-        }
-        else if (this->clients[i].get_username().empty())
-        {
-            if(this->clients[i].cmd.size() != 2 || (this->clients[i].cmd[0] != "USER"))
-            {
-                send(this->clients[i].get_fd_client(), "Syntax error : USER <username>\n", 32, 0);
-                return ;
-            }
-            this->clients[i].set_username(this->clients[i].cmd[1]);
-                send(this->clients[i].get_fd_client(),  "Welcome to the server\n", 22, 0);
-            this->clients[i].info_client_fin = true;
-        }
-    }
-    if (this->clients[i].authenticate == false)
-        check_password(i);
-}
+//                 send(this->clients[i].get_fd_client(), "ircserver 433 ", 15, 0);
+//                 send(this->clients[i].get_fd_client(),this->clients[i].cmd[1].c_str() , this->clients[i].cmd[1].size(), 0);
+//                 send(this->clients[i].get_fd_client(), " :Nickname is already in use\n", 29, 0);
+//             }
+//             else
+//             {
+//                 this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
+//                 this->clients[i].set_nickname(this->clients[i].cmd[1]);
+//             }
+//         }
+//         else if (this->clients[i].get_username().empty())
+//         {
+//             if(this->clients[i].cmd.size() != 2 || (this->clients[i].cmd[0] != "USER"))
+//             {
+//                 send(this->clients[i].get_fd_client(), "Syntax error : USER <username>\n", 32, 0);
+//                 return ;
+//             }
+//             this->clients[i].set_username(this->clients[i].cmd[1]);
+//                 send(this->clients[i].get_fd_client(),  "Welcome to the server\n", 22, 0);
+//             this->clients[i].info_client_fin = true;
+//         }
+//     }
+//     if (this->clients[i].authenticate == false)
+//         check_password(i);
+// }
 
 std::vector<std::string> Server::split_cmd(std::string &cmd)
 {
@@ -610,32 +585,45 @@ bool Server::check_client_name(std::string name)
     }
     return false;
 }
-int Server::authenticate(int j)
+void Server::authenticate(int j)
 {
-
-    if (this->clients[j].authenticate)
-        return 0;
+    if (this->clients[j].cmd[0] == "PASS")
+    {
+        if (this->password == this->clients[j].cmd[1])
+            this->clients[j].authenticate = true;
+        else
+        {
+            std::string rec_mes = ":ircserver 464 " + this->clients[j].cmd[1] + INCCORRECT_PASS;
+            send(this->clients[j].get_fd_client(), rec_mes.c_str() , rec_mes.size(), 0);
+            return ;
+        }
+    }
     switch (this->clients[j].cmd.size())
     {
         case 2:
-            if (this->clients[j].cmd[0] == "PASS")
-            {
-                if (this->password.compare(this->clients[j].cmd[1]))
-                    return -1;
-            }
-            else if (this->clients[j].cmd[0] == "NICK")
+            if (this->clients[j].cmd[0] == "NICK" && this->clients[j].authenticate)
             {
                 if (this->check_client_name(this->clients[j].cmd[1]))
-                    return 1;
+                {
+                    std::string rec_mes = ":ircserver 433 " + this->clients[j].cmd[1] + NICKNAME_IN_USE;
+                    send(this->clients[j].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
+                    return ;  
+                }
                 else
+                {
                     this->clients[j].set_nickname(this->clients[j].cmd[1]);
+                    this->clients[j].nick_succ = true;
+                }
             }
         case 5:
+            if(this->clients[j].cmd[0] == "USER" &&  this->clients[j].nick_succ) 
             {
                 this->clients[j].set_username(this->clients[j].cmd[1]);
-                this->clients[j].authenticate = true;
+                this->clients[j].reg_end = true;
+                std::string rec_mes = ":ircserver 001 " + this->clients[j].cmd[1] + WELCOME_MSG;
+                send(this->clients[j].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
             }
         default:
-            return 0;
+           return ;
     }
 }
