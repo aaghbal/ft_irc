@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/22 21:39:06 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/23 14:03:30 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,11 +227,10 @@ void Server::recive_data(int i)
     {
         std::cout << "[" <<this->clients[i - 1].cmd[j] << "] ";
     }
-    puts("");
     switch (this->clients[i - 1].cmd[0][0])
     {
         case 'Q':
-                disconnect_client(i);
+                disconnect_client(i - 1);
                 break;
         case 'P':
                 private_message(i - 1);
@@ -454,7 +453,7 @@ void Server::private_message(int i)
     split_target(this->clients[i].cmd[1], i);
     if (this->clients[i].split_targ.size() == 0)
     {
-        send(this->clients[i].get_fd_client(),  "ircserv 411 : No recipient given PRIVMSG\n", 42, 0);
+        send(this->clients[i].get_fd_client(),  "ircserv 411 :No recipient given PRIVMSG\n", 42, 0);
             return;
     }
     for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
