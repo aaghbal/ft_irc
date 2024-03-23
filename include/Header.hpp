@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:51:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/22 21:07:14 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/23 16:54:08 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,3 +43,4 @@
 #define NICKNAME_REQUIRED "ircserver 431 :No nickname given\r\n"
 #define NICKNAME_TOO_LONG "ircserver 432 :Nickname too long\r\n"
 #define NICKNAME_TOO_SHORT "ircserver 433 :Nickname too short\r\n"
+#define ERR_NEEDMOREPARAMS "ircserver 461 :\r\n"
