@@ -18,7 +18,6 @@ class Channel
 {
     private:
         std::string _Name;
-        
     public:
         std::vector<std::string> Kiked_Client;
         std::vector<Client> _Client;

@@ -261,31 +261,30 @@ bool Server::check_client_channel(std::string name,int ch_index, int flag)
 
 void Server::kick_command(int i)
 {
+    std::string msg;
     int num_ch = found_channel(this->clients[i].cmd[1]);
     if (num_ch == -1)
     {
-        send(this->clients[i].get_fd_client(), "ircserver 403 ", 14, 0);
-        send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
-        send(this->clients[i].get_fd_client(), " : No such channel\n", 19, 0);
+        msg = ":ircserver 403 " + this->clients[i].cmd[1] + " : No such channel" + LF;
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
     }
     if (this->channels[num_ch].joined_in_channel(this->clients[i].get_fd_client()) == false)
     {
-        send(this->clients[i].get_fd_client(), "ircserver 442 ", 14, 0);
-        send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
-        send(this->clients[i].get_fd_client(), " :You're not on that channel\n", 29, 0);
+        msg = ":ircserver 441 " + this->clients[i].cmd[1] + " " + this->channels[num_ch].get_name_channel() + " :You're not on that channel" + LF;
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
-    }
+    }//:irc.example.com 482 <channel> :You're not channel operator
     if (this->channels[num_ch].is_operator(this->clients[i].get_fd_client()) == false)
     {
-        send(this->clients[i].get_fd_client(), "ircserver 482 ", 14, 0);
-        send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
-        send(this->clients[i].get_fd_client(), " :You're not channel operator\n", 30, 0); 
+        msg = ":ircserver 482 " + this->channels[num_ch].get_name_channel() + " :You're not channel operator" + LF;
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
     }
     erase_client_from_cha(i, num_ch);
     this->clients[i].split_targ.clear();
 }
+
 void Server::erase_client_from_cha(int i, int num_ch)
 {
     split_target(this->clients[i].cmd[2], i);
@@ -316,6 +315,7 @@ void Server::get_response_name(std::string &cmd, int i, int fd)
         msg += " JOIN ";
     msg += cmd;
     msg += " ";
+    msg += LF;
     send(fd, msg.c_str(), msg.size(), 0);
 }
 
@@ -403,9 +403,11 @@ int Server::found_channel(std::string const &chan)
 
 void Server::join_cmd(int i)
 {
+    std::string msg;
     if(this->clients[i].cmd[1].size() < 2)
     {
-        send(this->clients[i].get_fd_client(), "Channel name begins with '#'\n", 29, 0);
+        msg = ":ircserver 461 " + this->clients[i].cmd[1] + " :Not enough parameters" + LF;
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
     }
     int n_ch = this->found_channel(this->clients[i].cmd[1]);
@@ -416,7 +418,9 @@ void Server::join_cmd(int i)
         ch._Client.push_back(this->clients[i]);
         ch.operat.push_back(this->clients[i].get_fd_client());
         this->channels.push_back(ch);
-        send(this->clients[i].get_fd_client(), "Creater channel \n", 17, 0);
+        //:irc.example.com 001 user123 :Welcome to the IRC server!
+        msg = ":ircserver 001 " + this->clients[i].get_nickname() + WELCOME_MSG ;
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
     }
     else if (this->clients[i].cmd[1][0] == '#')
     {
@@ -426,7 +430,7 @@ void Server::join_cmd(int i)
             send(this->channels[n_ch]._Client[c].get_fd_client(), "\n", 1, 0);
         }
         this->channels[n_ch]._Client.push_back(this->clients[i]);
-        send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
+        get_response_name(this->channels[n_ch].get_name_channel(), i, this->clients[i].get_fd_client());
     }
 }
 
@@ -502,6 +506,7 @@ void Server::priv_msg_chan(int i, int j)
     }
     not_found_target_msg(i,j,0);
 }
+
 bool Server::check_client_name(std::string name)
 {
     for (size_t i = 0; i < this->clients.size(); i++)
@@ -511,6 +516,7 @@ bool Server::check_client_name(std::string name)
     }
     return false;
 }
+
 void Server::authenticate(int j)
 {
     if (this->clients[j].cmd[0] == "PASS")

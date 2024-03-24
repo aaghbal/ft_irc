@@ -44,3 +44,4 @@
 #define NICKNAME_TOO_LONG "ircserver 432 :Nickname too long\r\n"
 #define NICKNAME_TOO_SHORT "ircserver 433 :Nickname too short\r\n"
 #define ERR_NEEDMOREPARAMS "ircserver 461 :\r\n"
+#define LF "\f\n"
