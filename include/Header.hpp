@@ -29,7 +29,8 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-#define MAX_CLIENTS 10
+#define MAX_CLIENTS 200
+
 #define INCCORRECT_PASS " :Password incorrect\r\n"
 #define PASS_REQUIRED "ircserver 461 :Password required\r\n"
 #define PASS_ACCEPTED "ircserver 462 :Password accepted\r\n"
@@ -43,5 +44,4 @@
 #define NICKNAME_REQUIRED "ircserver 431 :No nickname given\r\n"
 #define NICKNAME_TOO_LONG "ircserver 432 :Nickname too long\r\n"
 #define NICKNAME_TOO_SHORT "ircserver 433 :Nickname too short\r\n"
-#define ERR_NEEDMOREPARAMS "ircserver 461 :\r\n"
 #define LF "\f\n"

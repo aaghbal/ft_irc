@@ -70,4 +70,5 @@ class Server
         void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
         void                        disconnect_client(int i);
+        void                        Ch_modes(int i);
 };

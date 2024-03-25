@@ -213,6 +213,9 @@ void Server::recive_data(int i)
         case 'K':
                 kick_command(i - 1);
                 break;
+        case 'M':
+                Ch_modes(i - 1);
+                break;
     }
         this->clients[i -1].cmd.clear();
     // }
@@ -228,18 +231,18 @@ int Server::invite_check(std::string &nick, std::string &chan, int fd)
     int ch = this->found_channel(chan);
     if(fd_rec == 0)
     {
-        send(fd, "This client does not exist\n", 28, 0);
+        send(fd, "This client does not exist\r\n", 28, 0);
         return (-1);
     }
     if (ch == -1)
     {
         std::cout << ch << std::endl;
-        send(fd, "This channel does not exist\n", 28, 0);
+        send(fd, "This channel does not exist\r\n", 28, 0);
         return (-1);
     }
     if (check_client_channel(nick, ch, 0))
     {
-        send(fd, "This client is allready in this Channel\n", 39, 0);
+        send(fd, "This client is allready in this Channel\r\n", 39, 0);
         return (-1);
     }
     return (fd_rec);
@@ -296,7 +299,7 @@ void Server::erase_client_from_cha(int i, int num_ch)
             send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str(), this->clients[i].split_targ[j].size(), 0);
             send(this->clients[i].get_fd_client(), " ", 1, 0);
             send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
-            send(this->clients[i].get_fd_client(), " :They aren't on that channel\n", 30, 0); 
+            send(this->clients[i].get_fd_client(), " :They aren't on that channel\r\n", 30, 0); 
         }
     }
 }
@@ -324,7 +327,7 @@ void    Server::priv_msg_user(int i, int j)
     int fd_rec = this->client_name[this->clients[i].split_targ[j]];
     if (this->clients[i].cmd[2].empty())
     {
-        send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
+        send(this->clients[i].get_fd_client(),  "No text to send\r\n", 16, 0);
         return ;
     }
     else if (fd_rec == 0)
@@ -336,7 +339,7 @@ void    Server::priv_msg_user(int i, int j)
             send_all_arg(i, fd_rec);
         else
             send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-        send(fd_rec, "\n", 1, 0);
+        send(fd_rec, "\r\n", 1, 0);
     }   
 }
 
@@ -378,7 +381,7 @@ void Server::private_message(int i)
     split_target(this->clients[i].cmd[1], i);
     if (this->clients[i].split_targ.size() == 0)
     {
-        send(this->clients[i].get_fd_client(),  "ircserv 411 :No recipient given PRIVMSG\n", 42, 0);
+        send(this->clients[i].get_fd_client(),  "ircserv 411 :No recipient given PRIVMSG\r\n", 42, 0);
             return;
     }
     for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
@@ -422,12 +425,37 @@ void Server::join_cmd(int i)
         msg = ":ircserver 001 " + this->clients[i].get_nickname() + WELCOME_MSG ;
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
     }
+    else if (this->channels[n_ch].mode.find('i') != std::string::npos)
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 473 :Cannot join channel (+i)\r\n", 35, 0);
+        return ;
+    }
+    else if (this->channels[n_ch].mode.find('k') != std::string::npos && this->clients[i].cmd.size() < 3)
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 475 :Cannot join channel (+k)\r\n", 35, 0);
+        return ;
+    }
+    else if (this->channels[n_ch].mode.find('l') != std::string::npos && this->channels[n_ch]._Client.size() == this->channels[n_ch].max_clients)
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 471 :Cannot join channel (+l)\r\n", 35, 0);
+        return ;
+    }
+    else if (this->channels[n_ch].joined_in_channel(this->clients[i].get_fd_client()))
+    {
+        send(this->clients[i].get_fd_client(), "ircserver 443 :Already in channel\r\n", 33, 0);
+        return ;
+    }
+    else if (this->clients[i].cmd[1][0] == '#')
+    {
+        this->channels[n_ch]._Client.push_back(this->clients[i]);
+        get_response_name(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
+    }
     else if (this->clients[i].cmd[1][0] == '#')
     {
         for (size_t c = 0; c < this->channels[n_ch]._Client.size(); c++)
         {
             get_response_name(this->channels[n_ch].get_name_channel(), i, this->channels[n_ch]._Client[c].get_fd_client());  
-            send(this->channels[n_ch]._Client[c].get_fd_client(), "\n", 1, 0);
+            send(this->channels[n_ch]._Client[c].get_fd_client(), "\r\n", 1, 0);
         }
         this->channels[n_ch]._Client.push_back(this->clients[i]);
         get_response_name(this->channels[n_ch].get_name_channel(), i, this->clients[i].get_fd_client());
@@ -466,9 +494,9 @@ void Server::not_found_target_msg(int i, int j, int fla)
     send(this->clients[i].get_fd_client(),  "ircserv 401 ", 13, 0);
     send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str() , this->clients[i].split_targ[j].size(), 0);
     if (fla)
-        send(this->clients[i].get_fd_client(),  " :No such nick\n", 15, 0);
+        send(this->clients[i].get_fd_client(),  " :No such nick\r\n", 15, 0);
     else
-        send(this->clients[i].get_fd_client(),  " :No such channel\n", 18, 0);
+        send(this->clients[i].get_fd_client(),  " :No such channel\r\n", 18, 0);
         
 }
 
@@ -480,7 +508,7 @@ void Server::send_all_arg(int i, int fd_rec)
         if ((k + 1) != this->clients[i].cmd.size())
             send(fd_rec,  " ", 1, 0);
     }
-    send(fd_rec,  "\r\n", 2, 0);
+    send(fd_rec,  "\r\r\n", 2, 0);
 }
 
 void Server::priv_msg_chan(int i, int j)
@@ -498,7 +526,7 @@ void Server::priv_msg_chan(int i, int j)
                         send_all_arg(i, this->channels[k]._Client[c].get_fd_client());
                     else
                         send(this->channels[k]._Client[c].get_fd_client(),  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-                    send(this->channels[k]._Client[c].get_fd_client(),  "\n", 1, 0);
+                    send(this->channels[k]._Client[c].get_fd_client(),  "\r\n", 1, 0);
                 }
             }
             return ;
@@ -558,5 +586,54 @@ void Server::authenticate(int j)
             }
         default:
            return ;
+    }
+}
+
+//mode <channel|nickname> [[+|-]modechars [parameters]]
+
+void Server::Ch_modes(int i)
+{
+    std::string allowed_modes = "itkl";
+    int ch_index = found_channel(this->clients[i].cmd[1]);
+    if (ch_index == -1)
+    {
+        send(this->clients[i].get_fd_client(), ":ircserver 403 :No such channel\r\n", 31, 0);
+        return ;
+    }
+    for (size_t j = 2; j < this->clients[i].cmd.size(); j++)
+    {
+        if((this->clients[i].cmd[j][0] == '+' || this->clients[i].cmd[j][0] == '-' ) && (allowed_modes.find(this->clients[i].cmd[j][1]) != std::string::npos))
+        {
+            if (this->clients[i].cmd[j][1] == 'i' && this->clients[i].cmd[j + 1].empty())
+            {
+                this->channels[ch_index].mode += this->clients[i].cmd[j][0];
+                return ;
+            }   
+
+            else if (this->clients[i].cmd[j][1] == 't' && this->clients[i].cmd[j + 1].empty())
+            {
+                this->channels[ch_index].mode += this->clients[i].cmd[j][0];
+                return ;
+            }   
+            else if (this->clients[i].cmd[j][1] == 'k' && !this->clients[i].cmd[j + 1].empty() && this->clients[i].cmd[j + 1].size() <= 8)
+            {
+                std::cout << "cmd : " << this->clients[i].cmd[j + 1] << std::endl;
+                this->channels[ch_index].password = this->clients[i].cmd[j + 1];
+                return ;
+            }
+            else if (this->clients[i].cmd[j][1] == 'l' && !this->clients[i].cmd[j + 1].empty())
+            {
+                this->channels[ch_index].max_clients = std::atol(this->clients[i].cmd[j + 1].c_str());//check if the number is valid
+                return ;
+            }
+            else if (this->clients[i].cmd[j][1] == 'o' && !this->clients[i].cmd[j + 1].empty())
+                this->channels[ch_index].operat.push_back(this->clients[i].get_fd_client());
+        }
+        else
+        {
+            send(this->clients[i].get_fd_client(), ":ircserver 501 :Unknown MODE flag\r\n", 34, 0);
+            return ;
+        }
+        std::cout << "cmd : " << this->clients[i].cmd[j] << std::endl;
     }
 }
