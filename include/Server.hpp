@@ -62,7 +62,7 @@ class Server
         void                        send_all_arg(int i, int fd_rec);
         void                        priv_msg_chan(int i, int j);
         int                         invite_check(std::string &nick, std::string &chan, int fd);
-        bool                        check_client_channel(std::string name,int fd, int flag);
+        int                         check_client_channel(std::string name,int fd, int flag);
         void                        kick_command(int i);
         void                        erase_client_from_cha(int i, int num_ch);
         void                        get_response_name(std::string &cmd, int i, int fd);
@@ -70,4 +70,5 @@ class Server
         void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
         void                        disconnect_client(int i);
+        void                        Ch_modes(int i);
 };
