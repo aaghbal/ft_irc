@@ -18,11 +18,15 @@ class Channel
 {
     private:
         std::string _Name;
-        
     public:
         std::vector<std::string> Kiked_Client;
         std::vector<Client> _Client;
         std::vector<int>    operat;
+        std::string         topic;
+        std::string         mode;
+        std::string         password;
+        size_t              max_clients;
+        int                 invite_check;
         void                set_name(std::string const &name);
         void                Add_Client(Client &cli);
         std::string         &get_name_channel(void);

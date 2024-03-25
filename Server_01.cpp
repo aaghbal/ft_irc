@@ -59,47 +59,6 @@ bool Server::check_client_channel(std::string name,int ch_index)
     return false;
 }
 
-void Server::private_message(int i)
-{
-    bool flag = false;
-    split_target(this->clients[i].cmd[1], i);
-    if (this->clients[i].split_targ.size() == 0)
-    {
-        send(this->clients[i].get_fd_client(),  "ircserv 411 : No recipient given PRIVMSG\n", 42, 0);
-            return;
-    }
-    if(this->clients[i].cmd[2][0] == ':')
-    {
-        this->clients[i].cmd[2].erase(0, 1);
-        flag = true;
-    }
-    for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
-    {
-        if (this->clients[i].split_targ[j][0] == '#')
-            priv_msg_chan(i, j, flag);
-        else
-        {
-            int fd_rec = this->client_name[this->clients[i].split_targ[j]];
-            if (this->clients[i].cmd[2].empty())
-            {
-                send(this->clients[i].get_fd_client(),  "No text to send\n", 16, 0);
-                break ;
-            }
-            else if (fd_rec == 0)
-                not_found_target_msg(i, j, 1);
-            else if (fd_rec != this->clients[i].get_fd_client())
-            {
-                if (flag)
-                    send_all_arg(i, fd_rec);
-                else
-                    send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-                send(fd_rec, "\n", 1, 0);
-            }   
-        }
-    }
-    this->clients[i].cmd.clear();
-    this->clients[i].split_targ.clear();
-}
 
 int Server::found_channel(std::string const &chan)
 {
@@ -220,14 +179,14 @@ void Server::split_target(std::string &cmd, int fd)
             this->clients[fd].split_targ.push_back(token);
 }
 
-void Server::not_found_target_msg(int i, int j, int fla)
-{
-    send(this->clients[i].get_fd_client(),  "ircserv 401 ", 13, 0);
-    send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str() , this->clients[i].split_targ[j].size(), 0);
-    if (fla)
-        send(this->clients[i].get_fd_client(),  " :No such nick\n", 15, 0);
-    else
-        send(this->clients[i].get_fd_client(),  " :No such channel\n", 18, 0);
+// void Server::not_found_target_msg(int i, int j, int fla)
+// {
+//     send(this->clients[i].get_fd_client(),  "ircserv 401 ", 13, 0);
+//     send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str() , this->clients[i].split_targ[j].size(), 0);
+//     if (fla)
+//         send(this->clients[i].get_fd_client(),  " :No such nick\n", 15, 0);
+//     else
+//         send(this->clients[i].get_fd_client(),  " :No such channel\n", 18, 0);
         
-}
+// }
 

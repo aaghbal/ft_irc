@@ -1,4 +1,14 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
+/*   Updated: 2024/03/22 21:11:36 by aaghbal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #pragma once
 
@@ -15,8 +25,8 @@ class Client {
     public :
         Client();
         bool                                authenticate;
-        int                                 num_pass;
-        bool                                info_client_fin;
+        bool                                reg_end;
+        bool                                nick_succ;
         std::string                         buff;
         int                                 num_pass;
 

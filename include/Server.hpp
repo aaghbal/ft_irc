@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/20 16:56:37 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/22 20:15:35 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,12 +62,13 @@ class Server
         void                        send_all_arg(int i, int fd_rec);
         void                        priv_msg_chan(int i, int j);
         int                         invite_check(std::string &nick, std::string &chan, int fd);
-        bool                        check_client_channel(std::string name,int fd, int flag);
+        int                         check_client_channel(std::string name,int fd, int flag);
         void                        kick_command(int i);
         void                        erase_client_from_cha(int i, int num_ch);
         void                        get_response_name(std::string &cmd, int i, int fd);
         void                        priv_msg_user(int i, int j);    
-        int                         authenticate(int j);                
+        void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
         void                        disconnect_client(int i);
+        void                        Ch_modes(int i);
 };
