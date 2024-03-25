@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/23 16:59:16 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/25 17:16:10 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,22 +153,6 @@ void Server::add_new_connection(void)
 
 }
 
-// int    myRevc(std::string &str , int fd)
-// {
-//     int ret = 0;
-//     str.clear();
-//     while(str.find('\n') == std::string::npos)
-//     {
-//         char tmp[1000];
-//         ret += recv(fd, tmp, 1000, 0);
-//         if (ret == 0)
-//             return -1;
-//         tmp[ret] = '\0';
-//         str += tmp;
-//         memset(tmp, 0, 1000);
-//     }
-//     return ret;
-// }
 
 int    myRevc(std::string &str , int fd)
 {
@@ -210,7 +194,7 @@ void Server::recive_data(int i)
                 private_message(i - 1);
                 break;
         case 'J':
-                this->join_cmd(i - 1);
+                join_cmd(i - 1);
                 break;
         case 'K':
                 kick_command(i - 1);
@@ -320,7 +304,7 @@ void Server::get_response_name(std::string &cmd, int i, int fd)
         msg += " JOIN ";
     msg += cmd;
     msg += " ";
-    msg += LF;
+    // msg += LF;
     send(fd, msg.c_str(), msg.size(), 0);
 }
 
@@ -341,7 +325,7 @@ void    Server::priv_msg_user(int i, int j)
             send_all_arg(i, fd_rec);
         else
             send(fd_rec,  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-        send(fd_rec, "\r\n", 1, 0);
+        send(fd_rec, "\r\n", 2, 0);
     }   
 }
 
@@ -422,57 +406,53 @@ void Server::join_cmd(int i)
         ch.set_name(this->clients[i].cmd[1]);
         ch._Client.push_back(this->clients[i]);
         ch.operat.push_back(this->clients[i].get_fd_client());
+        if (!this->clients[i].cmd[2].empty())
+        {
+            ch.password = this->clients[i].cmd[2];
+            ch.mode += 'k';
+        }
         this->channels.push_back(ch);
-        //:irc.example.com 001 user123 :Welcome to the IRC server!
-        msg = ":ircserver 001 " + this->clients[i].get_nickname() + WELCOME_MSG ;
-        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        joined_message(this->clients[i].get_fd_client(), i, -1);
     }
     else if (this->channels[n_ch].mode.find('i') != std::string::npos)
     {
-        send(this->clients[i].get_fd_client(), "ircserver 473 :Cannot join channel (+i)\r\n", 35, 0);
+        send(this->clients[i].get_fd_client(), "ircserver 473 :Cannot join channel (+i)\r\n", 41, 0);
         return ;
     }
     else if (this->channels[n_ch].mode.find('k') != std::string::npos && this->clients[i].cmd.size() < 3)
     {
-        send(this->clients[i].get_fd_client(), "ircserver 475 :Cannot join channel (+k)\r\n", 35, 0);
+        std::string ss = "ircserver 475 " + this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel() + " :Cannot join channel (+k) -bad key\r\n";
+        send(this->clients[i].get_fd_client(), ss.c_str(), ss.size(), 0);
         return ;
     }
     else if (this->channels[n_ch].mode.find('l') != std::string::npos && this->channels[n_ch]._Client.size() == this->channels[n_ch].max_clients)
     {
-        send(this->clients[i].get_fd_client(), "ircserver 471 :Cannot join channel (+l)\r\n", 35, 0);
+        send(this->clients[i].get_fd_client(), "ircserver 471 :Cannot join channel (+l)\r\n", 41, 0);
         return ;
     }
     else if (this->channels[n_ch].joined_in_channel(this->clients[i].get_fd_client()))
     {
-        send(this->clients[i].get_fd_client(), "ircserver 443 :Already in channel\r\n", 33, 0);
+        send(this->clients[i].get_fd_client(), "ircserver 443 :Already in channel\r\n", 35, 0);
         return ;
     }
     else if (this->clients[i].cmd[1][0] == '#')
     {
-        this->channels[n_ch]._Client.push_back(this->clients[i]);
-        get_response_name(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
-    }
-    else if (this->clients[i].cmd[1][0] == '#')
-    {
-        for (size_t c = 0; c < this->channels[n_ch]._Client.size(); c++)
+        if (this->channels[n_ch].mode.find('i') != std::string::npos)
         {
-            get_response_name(this->channels[n_ch].get_name_channel(), i, this->channels[n_ch]._Client[c].get_fd_client());  
-            send(this->channels[n_ch]._Client[c].get_fd_client(), "\r\n", 1, 0);
+            if (this->channels[n_ch].password == this->clients[i].cmd[2])
+            {
+                this->channels[n_ch]._Client.push_back(this->clients[i]);
+                joined_message(this->clients[i].get_fd_client(), i, n_ch);
+            }
+            else
+                send(this->clients[i].get_fd_client(), "ircserver 473 :Cannot join channel (+k)\r\n", 41, 0);
+            return ;
         }
         this->channels[n_ch]._Client.push_back(this->clients[i]);
-        get_response_name(this->channels[n_ch].get_name_channel(), i, this->clients[i].get_fd_client());
+        joined_message(this->clients[i].get_fd_client(), i, n_ch);
     }
 }
 
-void    Server::print(std::vector<std::string> &cmd, int fd)
-{
-    std::cout << "size " << cmd.size() << std::endl;
-    for (size_t i = 0; i < cmd.size(); i++)
-    {
-        std::cout << "clien fd : " << this->clients[fd - 1].get_fd_client() << " with  :[" <<  cmd[i] << "]: ";
-    }
-    std::cout << std::endl;
-}
 void Server::split_target(std::string &cmd, int fd)
 {
     std::string token = "";
@@ -510,7 +490,7 @@ void Server::send_all_arg(int i, int fd_rec)
         if ((k + 1) != this->clients[i].cmd.size())
             send(fd_rec,  " ", 1, 0);
     }
-    send(fd_rec,  "\r\r\n", 2, 0);
+    send(fd_rec,  "\r\n", 2, 0);
 }
 
 void Server::priv_msg_chan(int i, int j)
@@ -599,31 +579,30 @@ void Server::Ch_modes(int i)
     int ch_index = found_channel(this->clients[i].cmd[1]);
     if (ch_index == -1)
     {
-        send(this->clients[i].get_fd_client(), ":ircserver 403 :No such channel\r\n", 35, 0);
+        send(this->clients[i].get_fd_client(), ":ircserver 403 :No such channel\r\n", 33, 0);
         return ;
     }
-
     if((this->clients[i].cmd[2][0] == '+' || this->clients[i].cmd[2][0] == '-' ) && (allowed_modes.find(this->clients[i].cmd[2][1]) != std::string::npos))
     {
         std::string msg = ":ircserver 461 MODE :Not enough parameters\r\n";
         if (this->clients[i].cmd[2][1] == 'i' && this->clients[i].cmd[3].empty())
         {
-            this->channels[ch_index].mode += this->clients[i].cmd[2][0];
+            this->channels[ch_index].mode += this->clients[i].cmd[2][1];
             return ;
-        }   
-
+        }
         else if (this->clients[i].cmd[2][1] == 't' && this->clients[i].cmd[3].empty())
         {
-            this->channels[ch_index].mode += this->clients[i].cmd[2][0];
+            this->channels[ch_index].mode += this->clients[i].cmd[2][1];
             return ;
         }   
         else if (this->clients[i].cmd[2][1] == 'k' && !this->clients[i].cmd[3].empty() && this->clients[i].cmd[3].size() <= 8)
         {
             std::cout << "cmd : " << this->clients[i].cmd[3] << std::endl;
+            this->channels[ch_index].mode += this->clients[i].cmd[2][1];
             this->channels[ch_index].password = this->clients[i].cmd[3];
             return ;
         }
-        else if (this->clients[i].cmd[2][1] == 'l' && !this->clients[i].cmd[2].empty())
+        else if (this->clients[i].cmd[2][1] == 'l' && !this->clients[i].cmd[3].empty())
         {
             this->channels[ch_index].max_clients = std::atol(this->clients[i].cmd[3].c_str());//check if the number is valid
             return ;

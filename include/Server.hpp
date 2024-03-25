@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/22 20:15:35 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/25 14:35:15 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,6 @@ class Server
         void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
         void                        disconnect_client(int i);
+        void                        joined_message(int fd, int i, int cha);
         void                        Ch_modes(int i);
 };
