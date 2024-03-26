@@ -6,15 +6,108 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 13:57:26 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/24 22:38:34 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/26 17:10:00 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Header.hpp"
 
+
+void Server::join_cmd(int i)
+{
+    bool mod = false;
+    this->unk_com = false;
+    std::string msg;
+    if(this->clients[i].cmd.size() < 2)
+    {
+        msg = ":ircserver 461 " + this->clients[i].get_nickname() + " JOIN :Not enough parameters\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        msg.clear();
+        return ;
+    }
+    int n_ch = this->found_channel(this->clients[i].cmd[1]);
+    if (n_ch == -1)
+        create_new_chan(i);
+    else
+        mod = check_mode_chan(n_ch, i);
+    if (this->clients[i].cmd[1][0] == '#' && mod)
+        join_channel(n_ch, i);
+}
+
+void Server::create_new_chan(int i)
+{
+    Channel ch;
+    ch.set_name(this->clients[i].cmd[1]);
+    ch._Client.push_back(this->clients[i]);
+    ch.operat.push_back(this->clients[i].get_fd_client());
+    if (this->clients[i].cmd.size() > 2)
+    {
+        ch.password = this->clients[i].cmd[2];
+        ch.mode += 'k';
+    }
+    this->channels.push_back(ch);
+    joined_message(this->clients[i].get_fd_client(), i, -1); 
+}
+
+bool Server::check_mode_chan(int n_ch, int i)
+{
+    std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
+    std::string msg = "";
+    if (this->channels[n_ch].mode.find('i') != std::string::npos)
+    {
+        msg = ":ircserver 473 " + info + " :Cannot join channel (+i)\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        info.clear();
+        msg.clear();
+        return false;
+    }
+    else if (this->channels[n_ch].mode.find('k') != std::string::npos && this->clients[i].cmd.size() < 3)
+    {
+        msg = ":ircserver 475 " + info + " :Cannot join channel (+k)\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        info.clear();
+        msg.clear();
+        return false ;
+    }
+    else if (this->channels[n_ch].mode.find('l') != std::string::npos && this->channels[n_ch]._Client.size() == this->channels[n_ch].max_clients)
+    {
+        msg = ":ircserver 471 " + info + " :Cannot join channel (+l)\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        info.clear();
+        msg.clear();
+        return false ;
+    }
+    else if (this->channels[n_ch].joined_in_channel(this->clients[i].get_fd_client()))
+    {
+        msg = ":ircserver 443 " + info + " :is already on channel\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        info.clear();
+        msg.clear();
+        return false ;
+    }
+    info.clear();
+    return true ;
+}
+
+void Server::join_channel(int n_ch, int i)
+{
+    if (this->channels[n_ch].mode.find('i') != std::string::npos)
+    {
+        if (this->channels[n_ch].password == this->clients[i].cmd[2])
+        {
+            this->channels[n_ch]._Client.push_back(this->clients[i]);
+            joined_message(this->clients[i].get_fd_client(), i, n_ch);
+        }
+        return ;
+    }
+    this->channels[n_ch]._Client.push_back(this->clients[i]);
+    joined_message(this->clients[i].get_fd_client(), i, n_ch);
+}
+
+
 void Server::joined_message(int fd, int i, int cha)
 {
-    std::string str;
+    std::string str = "";
     if (cha == -1)
     {
         get_response_name(clients[i].cmd[1], i, fd);

@@ -70,32 +70,32 @@ int Server::found_channel(std::string const &chan)
     return (-1);
 }
 
-void Server::join_cmd(int i)
-{
-    int n_ch = this->found_channel(this->clients[i].cmd[1]);
-    if (n_ch == -1)
-    {
-        Channel ch;
-        ch.set_name(this->clients[i].cmd[1]);
-        ch.set_owner(this->clients[i].get_nickname());
-        ch._Client.push_back(this->clients[i]);
-        this->channels.push_back(ch);
-        send(this->clients[i].get_fd_client(), "Creater channel \n", 17, 0);
-    }
-    else
-    {
-        for(size_t j = 0; j < this->channels[n_ch].Kiked_Client.size(); j++)
-        {
-            if (this->channels[n_ch].Kiked_Client[j] == this->clients[i].cmd[1])
-            {
-                send(this->clients[i].get_fd_client(), "This client has been kicked from this channel\n", 46, 0);
-                return;
-            }
-        }
-        this->channels[n_ch]._Client.push_back(this->clients[i]);
-        send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
-    }
-}
+// void Server::join_cmd(int i)
+// {
+//     int n_ch = this->found_channel(this->clients[i].cmd[1]);
+//     if (n_ch == -1)
+//     {
+//         Channel ch;
+//         ch.set_name(this->clients[i].cmd[1]);
+//         ch.set_owner(this->clients[i].get_nickname());
+//         ch._Client.push_back(this->clients[i]);
+//         this->channels.push_back(ch);
+//         send(this->clients[i].get_fd_client(), "Creater channel \n", 17, 0);
+//     }
+//     else
+//     {
+//         for(size_t j = 0; j < this->channels[n_ch].Kiked_Client.size(); j++)
+//         {
+//             if (this->channels[n_ch].Kiked_Client[j] == this->clients[i].cmd[1])
+//             {
+//                 send(this->clients[i].get_fd_client(), "This client has been kicked from this channel\n", 46, 0);
+//                 return;
+//             }
+//         }
+//         this->channels[n_ch]._Client.push_back(this->clients[i]);
+//         send(this->clients[i].get_fd_client(), "ADD USER TO CHANNEL \n", 22, 0);
+//     }
+// }
 
 void Server::priv_msg_chan(int i, int j, bool flag)
 {
@@ -176,7 +176,10 @@ void Server::split_target(std::string &cmd, int fd)
         }
     }
     if (!token.empty())
-            this->clients[fd].split_targ.push_back(token);
+    {
+        this->clients[fd].split_targ.push_back(token);
+        token.clear();
+    }
 }
 
 // void Server::not_found_target_msg(int i, int j, int fla)
