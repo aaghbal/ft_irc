@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/22 20:15:35 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/26 16:35:07 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,16 @@ class Server
         void                        run_server();
         void                        set_password(const std::string &password);
         bool                        check_recv_message(int i);
-        void                        check_password(int i);
+        void                        check_password(int j);
+        void                        check_nickname(int j);
+        void                        check_username(int j);
+        void                        change_nikname(int i);
         struct  pollfd              init_pollfd(int fd);
         void                        add_new_connection(void);
         void                        recive_data(int i);
         void                        init_client(int i);
         void                        recv_data(int i);
+        bool                        unk_com;
 
         std::vector<std::string>    split_cmd(std::string &cmd);
         void                        private_message(int i);
@@ -70,5 +74,9 @@ class Server
         void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
         void                        disconnect_client(int i);
+        void                        create_new_chan(int i);
+        bool                        check_mode_chan(int n_ch, int i);
+        void                        join_channel(int n_ch, int i);
+        void                        joined_message(int fd, int i, int cha);
         void                        Ch_modes(int i);
 };
