@@ -41,6 +41,15 @@ bool    Channel::is_operator(int fd)
     }
     return false;
 }
+bool    Channel::is_invited(int fd)
+{
+    for (size_t i = 0; i < this->invited.size(); i++)
+    {
+        if(this->invited[i] == fd)
+            return true;
+    }
+    return false;
+}
 
 bool Channel::joined_in_channel(int fd)
 {

@@ -12,58 +12,78 @@
 
 #include "../include/Header.hpp"
 
+int  check_mode(std::string cmd)
+{
+    if (cmd[0] == '+' || cmd[0] == '-')
+        return (1);
+    else
+        return (0);
+}
+
 void Server::Ch_modes(int i)
 {
-    this->unk_com = false;
-    std::string allowed_modes = "itkol";
+    std::string msg = ":ircserver 461 MODE :Not enough parameters\r\n";
+    if(this->clients[i].cmd.size() < 2)
+    {
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        return ;
+    }
     int ch_index = found_channel(this->clients[i].cmd[1]);
     if (ch_index == -1)
     {
-        send(this->clients[i].get_fd_client(), ":ircserver 403 :No such channel\r\n", 33, 0);
+        send(this->clients[i].get_fd_client(), ":ircserver 403 MODE :No such channel\r\n", 33, 0);
         return ;
     }
-    if((this->clients[i].cmd[2][0] == '+' || this->clients[i].cmd[2][0] == '-' ) && (allowed_modes.find(this->clients[i].cmd[2][1]) != std::string::npos))
+    if (!this->channels[ch_index].is_operator(this->clients[i].get_fd_client()))
+    {    
+        msg = ":ircserver 482 " + this->channels[ch_index].get_name_channel() + " :You're not channel operator\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        return ;
+    }
+    size_t j = check_mode(this->clients[i].cmd[2]);
+    for (; j < this->clients[i].cmd[2].size(); j++)
     {
-        std::string msg = ":ircserver 461 MODE :Not enough parameters\r\n";
-        if (this->clients[i].cmd[2][1] == 'i' && this->clients[i].cmd[3].empty())
+        std::cout << this->clients[i].cmd[2][j] << std::endl;
+        msg.clear();
+        int param = 3;
+        msg = ":ircserver 501 :Unknown MODE flag\r\n";
+        if (this->clients[i].cmd[2][j] == 'i')
         {
-            this->channels[ch_index].mode += this->clients[i].cmd[2][1];
-            return ;
+            this->channels[ch_index].mode += this->clients[i].cmd[2][j];
+            msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " i\r\n";
+            param--;
         }
-        else if (this->clients[i].cmd[2][1] == 't' && this->clients[i].cmd[3].empty())
+        else if (this->clients[i].cmd[2][j] == 't')
         {
-            this->channels[ch_index].mode += this->clients[i].cmd[2][1];
-            return ;
+            this->channels[ch_index].mode += this->clients[i].cmd[2][j];
+            msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " t\r\n";
+            param--;
         }   
-        else if (this->clients[i].cmd[2][1] == 'k' && !this->clients[i].cmd[3].empty() && this->clients[i].cmd[3].size() <= 8)
+        else if (this->clients[i].cmd[2][j] == 'k' && !this->clients[i].cmd[param].empty() && this->clients[i].cmd[param].size() <= 8)
         {
-            std::cout << "cmd : " << this->clients[i].cmd[3] << std::endl;
-            this->channels[ch_index].mode += this->clients[i].cmd[2][1];
-            this->channels[ch_index].password = this->clients[i].cmd[3];
-            return ;
+            this->channels[ch_index].mode += this->clients[i].cmd[2][j];
+            this->channels[ch_index].password = this->clients[i].cmd[param];
+            msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + "k " + this->clients[i].cmd[param] + "\r\n";
         }
-        else if (this->clients[i].cmd[2][1] == 'l' && !this->clients[i].cmd[3].empty())
+        else if (this->clients[i].cmd[2][j] == 'l' && !this->clients[i].cmd[param].empty())
         {
-            this->channels[ch_index].max_clients = std::atol(this->clients[i].cmd[3].c_str());//check if the number is valid
-            return ;
+            msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " l " + this->clients[i].cmd[param] +" \r\n";
+            this->channels[ch_index].max_clients = std::atol(this->clients[i].cmd[param].c_str());
         }
-        else if (this->clients[i].cmd[2][1] == 'o' && !this->clients[i].cmd[3].empty())
+        else if (this->clients[i].cmd[2][j] == 'o' && !this->clients[i].cmd[param].empty())
         {
-            if (!this->channels[ch_index].is_operator(this->clients[i].get_fd_client()))
-                msg = ":ircserver 482 " + this->channels[ch_index].get_name_channel() + " :You're not channel operator\r\n";
+            if (check_client_channel(this->clients[i].cmd[param],ch_index, 0) < 0)
+                msg = ":ircserver 441 " + this->clients[i].cmd[param] + " " + this->channels[ch_index].get_name_channel() + ":No such nick/channel\r\n";
             else
-                msg = ":ircserver 441 " + this->clients[i].cmd[3] + " " + this->channels[ch_index].get_name_channel() + ":No such nick/channel\r\n";
-            if (check_client_channel(this->clients[i].cmd[3],ch_index, 0) != -1)
             {
-                this->channels[ch_index].operat.push_back(this->client_name[this->clients[i].cmd[3]]);
-                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " +o" + this->clients[i].cmd[3] + "\r\n";
+                this->channels[ch_index].operat.push_back(this->client_name[this->clients[i].cmd[param]]);
+                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " +o" + this->clients[i].cmd[param] + "\r\n";
             }
         }
-        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
-    }
-    // else
-    // {
-    //     send(this->clients[i].get_fd_client(), ":ircserver 501 :Unknown MODE flag\r\n", 47, 0);
-    //     return ;
-    // }
+        else
+            break;
+        param++;
+    } // loop for modes
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    this->clients[i].cmd.clear();
 }

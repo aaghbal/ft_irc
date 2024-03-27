@@ -32,6 +32,7 @@ class Client {
 
         std::vector<std::string>            cmd;
         std::vector<std::string>            split_targ;
+        std::string                         msg;
         void                                set_nickname(const std::string &niname);
         void                                set_username(const std::string &usname);
         void                                set_fd_client(int fd);

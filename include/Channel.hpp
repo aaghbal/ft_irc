@@ -22,6 +22,7 @@ class Channel
         std::vector<std::string> Kiked_Client;
         std::vector<Client> _Client;
         std::vector<int>    operat;
+        std::vector<int>    invited;
         std::string         topic;
         std::string         mode;
         std::string         password;
@@ -31,6 +32,7 @@ class Channel
         void                Add_Client(Client &cli);
         std::string         &get_name_channel(void);
         bool                is_operator(int fd);
+        bool                is_invited(int fd);
         bool                joined_in_channel(int fd);
         
         

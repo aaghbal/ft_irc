@@ -60,9 +60,15 @@ void Server::add_new_connection(void)
 int    myRevc(std::string &str , int fd)
 {
     char buff[1001];
-    int ret = recv(fd, buff, 1000, 0);
-    buff[ret - 1] = '\0';
-    str = buff;
+    int ret ;
+    while (str.find("\r\n") == std::string::npos)
+    {
+        ret = recv(fd, buff, 1000, 0);
+        buff[ret] = '\0';
+        str += buff;
+        if (ret <= 0)
+            return ret;
+    }
     return ret;
 }
 
@@ -104,6 +110,9 @@ void Server::recive_data(int i)
         case 'N':
                 if (this->clients[i - 1].cmd[0] == "NICK")
                     change_nikname(i - 1);
+        case 'I':
+                if (this->clients[i - 1].cmd[0] == "INVITE")
+                    InviteCommand(i - 1);
                 break;
     }
     if (this->unk_com)

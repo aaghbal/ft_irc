@@ -147,6 +147,8 @@ void Server::get_response_name(std::string &cmd, int i, int fd)
         msg += " JOIN ";
     else if (this->clients[i].cmd[0] == "NICK")
         msg += " NICK :";
+    else if (this->clients[i].cmd[0] == "INVITE")
+        msg += " INVITE ";
     msg += cmd;
     if (this->clients[i].cmd[0] == "NICK")
         msg += "\r\n";

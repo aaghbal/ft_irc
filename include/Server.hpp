@@ -79,4 +79,5 @@ class Server
         void                        join_channel(int n_ch, int i);
         void                        joined_message(int fd, int i, int cha);
         void                        Ch_modes(int i);
+        void                        InviteCommand(int i);
 };
