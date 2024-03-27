@@ -124,7 +124,7 @@ void Server::join_channel(int n_ch, int i, int k)
         if (this->channels[n_ch].is_invited(this->clients[i].get_fd_client()))
         {
             this->channels[n_ch]._Client.push_back(this->clients[i]);
-            joined_message(this->clients[i].get_fd_client(), i, n_ch);
+            joined_message(this->clients[i].get_fd_client(), i, n_ch,k);
         }
         return ;
     }

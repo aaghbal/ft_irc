@@ -122,7 +122,7 @@ void Server::recive_data(int i)
         send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
     }
-    this->clients[i - 1].cmd.clear();
+    // this->clients[i - 1].cmd.clear();
 }
 
 bool Server::check_recv_message(int i)
