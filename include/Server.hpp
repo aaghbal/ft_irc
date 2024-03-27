@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 16:35:07 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/27 15:41:35 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,9 @@ class Server
         int                         found_channel(std::string const &chan);
         void                        join_cmd(int i);
         void                        print(std::vector<std::string> &cmd, int fd);
-        void                        split_target(std::string &cmd, int i);
+        void                        split_target(std::string &cmd, int i, int flag);
         void                        not_found_target_msg(int i, int j, int fla);
+        void                        not_found_target_chan(int i, int k);
         void                        send_all_arg(int i, int fd_rec);
         void                        priv_msg_chan(int i, int j);
         int                         invite_check(std::string &nick, std::string &chan, int fd);
@@ -74,10 +75,10 @@ class Server
         void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
         void                        disconnect_client(int i);
-        void                        create_new_chan(int i);
+        void                        create_new_chan(int i, int k);
         bool                        check_mode_chan(int n_ch, int i);
-        void                        join_channel(int n_ch, int i);
-        void                        joined_message(int fd, int i, int cha);
+        void                        join_channel(int n_ch, int i, int k);
+        void                        joined_message(int fd, int i, int cha, int k);
         void                        Ch_modes(int i);
         void                        InviteCommand(int i);
 };

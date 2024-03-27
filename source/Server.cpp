@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:47:14 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 17:08:50 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/27 15:47:21 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ int Server::check_client_channel(std::string name,int ch_index, int flag)
 
 void Server::erase_client_from_cha(int i, int num_ch)
 {
-    split_target(this->clients[i].cmd[2], i);
+    split_target(this->clients[i].cmd[2], i, 1);
     for (size_t j = 0; j < this->clients[i].split_targ.size() ; j++)
     {
         if (check_client_channel(this->clients[i].split_targ[j], num_ch, 1) == false)
@@ -199,7 +199,7 @@ int Server::found_channel(std::string const &chan)
     return (-1);
 }
 
-void Server::split_target(std::string &cmd, int fd)
+void Server::split_target(std::string &cmd, int fd, int flag)
 {
     std::string token = "";
     for(size_t i = 0; i < cmd.size(); i++)
@@ -209,13 +209,19 @@ void Server::split_target(std::string &cmd, int fd)
             token += c;
         else if (!token.empty())
         {
-           
-            this->clients[fd].split_targ.push_back(token);
+            if (flag)
+                this->clients[fd].split_targ.push_back(token);
+            else
+                this->clients[fd].split_pass.push_back(token);
+                
             token.clear();
         }
     }
-    if (!token.empty())
-            this->clients[fd].split_targ.push_back(token);
+    if (!token.empty() && flag)
+        this->clients[fd].split_targ.push_back(token);
+    else if (!token.empty())
+        this->clients[fd].split_pass.push_back(token);
+        
 }
 void Server::not_found_target_msg(int i, int j, int fla)
 {
@@ -228,6 +234,14 @@ void Server::not_found_target_msg(int i, int j, int fla)
         
 }
 
+void Server::not_found_target_chan(int i, int k)
+{
+    std::string info = this->clients[i].get_nickname() + " " + this->clients[i].split_targ[k];
+    std::string msg = ":ircserver 403 " + info + " :No such channel\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    info.clear();
+    msg.clear();
+}
 bool Server::check_client_name(std::string name)
 {
     for (size_t i = 0; i < this->clients.size(); i++)

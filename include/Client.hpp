@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/22 21:11:36 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/27 15:06:03 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Client {
 
         std::vector<std::string>            cmd;
         std::vector<std::string>            split_targ;
-        std::string                         msg;
+        std::vector<std::string>            split_pass;
         void                                set_nickname(const std::string &niname);
         void                                set_username(const std::string &usname);
         void                                set_fd_client(int fd);

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 13:29:40 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 16:48:43 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/27 15:47:01 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void Server::private_message(int i)
 {
     this->unk_com = false;
-    split_target(this->clients[i].cmd[1], i);
+    split_target(this->clients[i].cmd[1], i, 1);
     if (this->clients[i].split_targ.size() == 0)
     {
         send(this->clients[i].get_fd_client(),  "ircserv 411 :No recipient given PRIVMSG\r\n", 42, 0);
@@ -46,7 +46,7 @@ void Server::priv_msg_chan(int i, int j)
                         send_all_arg(i, this->channels[k]._Client[c].get_fd_client());
                     else
                         send(this->channels[k]._Client[c].get_fd_client(),  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
-                    send(this->channels[k]._Client[c].get_fd_client(),  "\r\n", 1, 0);
+                    send(this->channels[k]._Client[c].get_fd_client(),  "\r\n", 2, 0);
                 }
             }
             return ;
