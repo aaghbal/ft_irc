@@ -115,18 +115,18 @@ void Server::authenticate(int j)
     }
 }
 
-// void    Server::change_nikname(int i)
-// {
-//     this->unk_com = false;
-//     if (this->check_client_name(this->clients[i].cmd[1]))
-//     {
-//         std::string rec_mes = ":ircserver 433 " + this->clients[i].cmd[1] + NICKNAME_IN_USE;
-//         send(this->clients[i].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
-//     }
-//     else
-//     {
-//         get_response_name(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
-//         this->clients[i].set_nickname(this->clients[i].cmd[1]);
-//         this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
-//     }
-// }
+void    Server::change_nikname(int i)
+{
+    this->unk_com = false;
+    if (this->check_client_name(this->clients[i].cmd[1]))
+    {
+        std::string rec_mes = ":ircserver 433 " + this->clients[i].cmd[1] + NICKNAME_IN_USE;
+        send(this->clients[i].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
+    }
+    else
+    {
+        get_response_name(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
+        this->clients[i].set_nickname(this->clients[i].cmd[1]);
+        this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
+    }
+}

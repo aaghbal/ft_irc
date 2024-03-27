@@ -43,7 +43,6 @@ void Server::Ch_modes(int i)
     size_t j = check_mode(this->clients[i].cmd[2]);
     for (; j < this->clients[i].cmd[2].size(); j++)
     {
-        std::cout << this->clients[i].cmd[2][j] << std::endl;
         msg.clear();
         int param = 3;
         msg = ":ircserver 501 :Unknown MODE flag\r\n";

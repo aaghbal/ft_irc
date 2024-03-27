@@ -11,16 +11,18 @@
 /* ************************************************************************** */
 
 #include "../include/Header.hpp"
-
+//Error(401): No such nick/channelError(401): No such nick/channel 06:07
 int Server::invite_check(std::string &nick, std::string &chan, int fd)
 {
     std::string msg;
     if (nick.empty() || chan.empty())
         return (-1);
-    int fd_rec = this->client_name[nick];
-    int ch = this->found_channel(chan);
+    int fd_rec = this->client_name[nick]; // here we get the fd of the client we want to invite ERROR here Fd is not right
+    std::cout <<"chammmmmel" << chan << std::endl;
+    int ch = found_channel(chan);
     if(fd_rec == 0 || ch == -1)
     {
+        std::cout << fd_rec << " " << ch << std::endl;
         std::string msg = ":ircserver 401 " + nick + " :No such nick/channel" ;
         msg+= LF;
         send(fd, msg.c_str(), msg.size(), 0);
