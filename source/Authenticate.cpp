@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:39:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 13:35:43 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 14:00:04 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@
 
 void Server::check_password(int j)
 {
-    std::cout << this->clients[j].cmd[0] << "|" << this->clients[j].cmd[1] << std::endl;
-    if (this->clients[j].cmd[0] == "PASS" || this->clients[j].cmd[0] == "pass")
+    if (this->clients[j].cmd[0] == "PASS")
     {
         if (this->password == this->clients[j].cmd[1])
             this->clients[j].authenticate = true;
@@ -37,7 +36,7 @@ void Server::check_password(int j)
 
 void Server::check_nickname(int j)
 {
-    if ((this->clients[j].cmd[0] == "NICK" || this->clients[j].cmd[0] == "nick")  && this->clients[j].authenticate)
+    if (this->clients[j].cmd[0] == "NICK" && this->clients[j].authenticate)
     {
         if (this->check_client_name(this->clients[j].cmd[1]))
         {
@@ -67,7 +66,7 @@ void Server::check_username(int j)
         send(this->clients[j].get_fd_client(), "Enter the nickname first\r\n", 26, 0);
         return ;
     }
-    if((this->clients[j].cmd[0] == "USER" || this->clients[j].cmd[0] == "user")) 
+    if(this->clients[j].cmd[0] == "USER") 
     {
         this->clients[j].set_username(this->clients[j].cmd[1]);
         this->clients[j].reg_end = true;
@@ -102,13 +101,7 @@ void Server::authenticate(int j)
         case 'N':
            check_nickname(j);
            break;
-        case 'n':
-           check_nickname(j);
-           break;
         case 'U':
-           check_username(j);
-           break;
-        case 'u':
            check_username(j);
            break;
         default:

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 13:33:14 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 16:16:22 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ void Server::recive_data(int i)
     this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
     if (this->clients[i - 1].cmd.size() == 0)
         return ;
+    to_upercase( this->clients[i - 1].cmd[0]);
     if (!this->clients[i - 1].reg_end)
     {
         authenticate(i - 1);

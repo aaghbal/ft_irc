@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 13:29:40 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 15:47:01 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 16:22:09 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void Server::priv_msg_chan(int i, int j)
                 if ((this->channels[k]._Client[c].get_fd_client() != this->clients[i].get_fd_client()))
                 {
                     get_response_name(this->clients[i].split_targ[j], i, this->channels[k]._Client[c].get_fd_client());
-                    if (this->clients[i].cmd[2][0] == ':')
+                    if (this->clients[i].cmd[2][0] == ':' && this->clients[i].cmd[2][1] == ':')
                         send_all_arg(i, this->channels[k]._Client[c].get_fd_client());
                     else
                         send(this->channels[k]._Client[c].get_fd_client(),  this->clients[i].cmd[2].c_str(),  this->clients[i].cmd[2].size(), 0);
@@ -65,7 +65,7 @@ void    Server::priv_msg_user(int i, int j)
     }
     else if (fd_rec == 0)
         not_found_target_msg(i, j, 1);
-    else if (fd_rec != this->clients[i].get_fd_client())
+    else
     {
         get_response_name(this->clients[i].split_targ[j], i, fd_rec);
         if (this->clients[i].cmd[2][0] == ':')
@@ -78,6 +78,7 @@ void    Server::priv_msg_user(int i, int j)
 
 void Server::send_all_arg(int i, int fd_rec)
 {
+    // this->clients[i].cmd[2].erase(0,1);
     for (size_t k = 2; k < this->clients[i].cmd.size() ; k++)
     {
         send(fd_rec,  this->clients[i].cmd[k].c_str(),  this->clients[i].cmd[k].size(), 0);

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 12:14:00 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 13:56:41 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,5 +81,6 @@ class Server
         void                        join_channel(int n_ch, int i, int k);
         void                        joined_message(int fd, int i, int cha, int k);
         void                        Ch_modes(int i);
+        void                        to_upercase(std::string &cmd);
 
 };
