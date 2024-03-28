@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:39:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 16:45:39 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 13:02:03 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 void Server::check_password(int j)
 {
+    std::cout << this->clients[j].cmd[0] << "|" << this->clients[j].cmd[1] << std::endl;
     if (this->clients[j].cmd[0] == "PASS" || this->clients[j].cmd[0] == "pass")
     {
         if (this->password == this->clients[j].cmd[1])

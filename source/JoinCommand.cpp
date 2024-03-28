@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 13:57:26 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 17:12:42 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/27 22:50:11 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,14 @@ void Server::join_cmd(int i)
             not_found_target_chan(i, k);
         else if (n_ch == -1)
             create_new_chan(i, k);
+        else if (check_client_channel(this->clients[i].cmd[1], n_ch, 0) != -1)
+        {
+            std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
+            msg = ":ircserver 443 " + info + " :is already on channel\r\n";
+            send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+            info.clear();
+            msg.clear();
+        }
         else
             mod = check_mode_chan(n_ch, i);
         if (mod)
@@ -107,7 +115,6 @@ void Server::join_channel(int n_ch, int i, int k)
     {
         std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
         std::string msg = ":ircserver 475 " + info + " :Cannot join channel (+k) - bad key\r\n";
-        std::cout << "hi : " << this->channels[n_ch].password << "hel : " << this->clients[i].cmd[2]<< std::endl;
         if (this->channels[n_ch].password == this->clients[i].cmd[2])
         {
             this->channels[n_ch]._Client.push_back(this->clients[i]);

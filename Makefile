@@ -6,12 +6,12 @@
 #    By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/01 15:04:00 by aaghbal           #+#    #+#              #
-#    Updated: 2024/03/26 16:12:42 by aaghbal          ###   ########.fr        #
+#    Updated: 2024/03/27 22:10:08 by aaghbal          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
 SRC = $(wildcard ./source/*.cpp)
 INC = $(wildcard ./inlude/*.hpp)
 NAME = ircserv

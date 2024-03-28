@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 17:13:32 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 13:01:10 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ int    myRevc(std::string &str , int fd)
 {
     char buff[1001];
     int ret = recv(fd, buff, 1000, 0);
-    buff[ret - 1] = '\0';
     str = buff;
     return ret;
 }
@@ -113,7 +112,7 @@ void Server::recive_data(int i)
         send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
     }
-    this->clients[i - 1].cmd.clear();
+    // this->clients[i - 1].cmd.clear();
 }
 
 bool Server::check_recv_message(int i)

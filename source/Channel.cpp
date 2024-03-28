@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 10:26:23 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/19 13:31:50 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/27 22:56:48 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,7 @@ void Channel::set_name(std::string const &name)
 {
     this->_Name = name;
 }
-// void Channel::set_owner(std::string const &name)
-// {
-//     this->OWNER_Name = name;
-// }
+
 void Channel::Add_Client(Client &cli)
 {
     this->_Client.push_back(cli);

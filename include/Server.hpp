@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 15:41:35 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/28 12:14:00 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,12 @@
 class Client;
 class Channel;
 
+
 class Server 
 {
     private :
         int                                 fd_s;
-        const char                          *port;
+        int                                 port;
         int                                 nbyteread;
         std::string                         password;
         std::string                         client_pass;
@@ -38,7 +39,7 @@ class Server
         Server();
         void                        init_sockinfo();
         void                        create_socket();
-        void                        set_port(const char *port);
+        void                        set_port(int port);
         void                        bind_socket(void);
         void                        listen_requ(void);
         void                        accept_data(void);
@@ -80,4 +81,5 @@ class Server
         void                        join_channel(int n_ch, int i, int k);
         void                        joined_message(int fd, int i, int cha, int k);
         void                        Ch_modes(int i);
+
 };
