@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 12:52:59 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 12:55:21 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/29 17:05:33 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ void Server::disconnect_client(int i)
 {
     this->unk_com = false;
     close(this->clients[i].get_fd_client());
+    this->clients[i - 1].cmd.clear();
     this->polfd.erase(polfd.begin() + i + 1);
     this->clients.erase(this->clients.begin() + i);
      std::cout << "this client " << i + 1 << " closed" << std::endl;

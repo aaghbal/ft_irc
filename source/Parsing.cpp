@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/27 22:54:01 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 14:00:54 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/29 21:32:17 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ std::vector<std::string> Server::split_cmd(std::string &cmd)
 
 void Server::split_target(std::string &cmd, int fd, int flag)
 {
+    if (this->clients[fd].split_pass.size() > 0)
+        this->clients[fd].split_pass.clear();
     std::string token = "";
     for(size_t i = 0; i < cmd.size(); i++)
     {
@@ -99,4 +101,13 @@ void    Server::to_upercase(std::string &cmd)
     {
         cmd[i] = toupper(cmd[i]);
     }
+}
+
+void Server::password_channel(std::string &pass)
+{
+    if (pass.size() > 24)
+        for (size_t i = 24; i < pass.size(); i++)
+        {
+                pass.erase(i);
+        }
 }

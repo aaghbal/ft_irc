@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 13:57:26 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 22:50:11 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/29 21:28:36 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void Server::create_new_chan(int i, int k)
     {
         if (!this->clients[i].split_pass[k].empty())
         {
+            password_channel(this->clients[i].split_pass[k]);
             ch.password = this->clients[i].split_pass[k];
             ch.mode += 'k';
         }

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 16:16:22 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/29 21:16:06 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,6 @@ void Server::recive_data(int i)
         send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
     }
-    // this->clients[i - 1].cmd.clear();
 }
 
 bool Server::check_recv_message(int i)
