@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 21:16:06 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 13:45:23 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void Server::add_new_connection(void)
             throw Error();
         cl.set_fd_client(new_fd_s);
         this->clients.push_back(cl);
-        this->polfd.push_back(init_pollfd(new_fd_s));
+        this->polfd.pus-_back(init_pollfd(new_fd_s));
         this->client_info[new_fd_s] = clinfo;
     }
     catch(const Error& e)
