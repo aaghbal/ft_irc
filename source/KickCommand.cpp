@@ -14,23 +14,10 @@
 void Server::kick_command(int i)
 {
     std::string msg;
-    if (this->clients[i].cmd.size() != 3)
-    {
-        msg = ":ircserver 461 KICK :Not enough parameters \r\n"; ;
-        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
-        return ;
-    }
-    this->unk_com = false;
     int num_ch = found_channel(this->clients[i].cmd[1]);
     if (num_ch == -1)
     {
         msg = ":ircserver 403 " + this->clients[i].cmd[1] + " : No such channel" + LF;
-        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
-        return ;
-    }
-    if (this->channels[num_ch].joined_in_channel(this->clients[i].get_fd_client()) == false)
-    {
-        msg = ":ircserver 441 " + this->clients[i].cmd[1] + " " + this->channels[num_ch].get_name_channel() + " :You're not on that channel" + LF;
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
     }

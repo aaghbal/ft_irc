@@ -19,22 +19,22 @@ class Channel
     private:
         std::string _Name;
     public:
-        std::vector<std::string> Kiked_Client;
-        std::vector<Client> _Client;
-        std::vector<int>    operat;
-        std::vector<int>    invited;
-        std::string         topic;
-        std::string         mode;
-        std::string         password;
-        size_t              max_clients;
-        int                 invite_check;
-        void                set_name(std::string const &name);
-        void                Add_Client(Client &cli);
-        std::string         &get_name_channel(void);
-        bool                is_operator(int fd);
-        bool                is_invited(int fd);
-        bool                joined_in_channel(int fd);
-        
-        
+        std::vector<std::string>    Kiked_Client;             
+        std::string                 topic;
+        std::vector<Client>         _Client;
+        std::vector<int>            operat;
+        std::vector<int>            invited;
+        std::string                 mode;
+        std::string                 password;
+        size_t                      max_clients;
+        int                         invite_check;
+        void                        set_name(std::string const &name);
+        void                        Add_Client(Client &cli);
+        std::string                 &get_name_channel(void);
+        bool                        is_operator(int fd);
+        bool                        joined_in_channel(int fd);
+        bool                        is_invited(int fd);
+        void                        erase_operat(int fd);
+        std::string                 &get_topic(void);
 };
 

@@ -13,6 +13,26 @@
 
 #include "../include/Header.hpp"
 
+bool Channel::is_invited(int fd)
+{
+    for (size_t i = 0; i < this->invited.size(); i++)
+    {
+        if (this->invited[i] == fd)
+            return true;
+    }
+    return false;
+}
+void Channel::erase_operat(int fd)
+{
+    for (size_t i = 0; i < this->operat.size(); i++)
+    {
+        if (this->operat[i] == fd)
+        {
+            this->operat.erase(this->operat.begin() + i);
+            return ;
+        }
+    }
+}
 
 void Channel::set_name(std::string const &name)
 {
@@ -41,14 +61,10 @@ bool    Channel::is_operator(int fd)
     }
     return false;
 }
-bool    Channel::is_invited(int fd)
+
+std::string &Channel::get_topic(void)
 {
-    for (size_t i = 0; i < this->invited.size(); i++)
-    {
-        if(this->invited[i] == fd)
-            return true;
-    }
-    return false;
+    return this->topic;
 }
 
 bool Channel::joined_in_channel(int fd)

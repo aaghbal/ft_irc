@@ -11,29 +11,53 @@
 /* ************************************************************************** */
 
 #include "../include/Header.hpp"
-//Error(401): No such nick/channelError(401): No such nick/channel 06:07
-int Server::invite_check(std::string &nick, std::string &chan, int fd)
+
+void Server::InviteCommand(int i)
+{
+    std::string msg;
+    if(this->clients[i].cmd.size() != 3)
+    {
+        msg = ":ircserver 461 INVITE :Not enough parameters\r\n";
+        send(this->clients[i].get_fd_client(), "Invalid number of arguments\r\n", 29, 0);
+        return;
+    }
+    int fd = invite_check(this->clients[i].cmd[2], this->clients[i].cmd[1], this->clients[i].get_fd_client(),i);
+    if (fd == -1)
+        return;
+
+    msg = ":" + this->clients[i].get_nickname() + "!" + this->clients[i].get_username() + "@" + "localhost" + " INVITE " + this->clients[i].cmd[1] + " :" + this->clients[i].cmd[2] + "\r\n";
+    send(fd, msg.c_str(), msg.size(), 0);
+    //invitation sent
+    msg = ":ircserver 341 INVITE :Invite to channel sent\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+}
+
+int Server::invite_check(std::string &nick, std::string &chan, int fd,int i)
 {
     std::string msg;
     if (nick.empty() || chan.empty())
         return (-1);
-    int fd_rec = this->client_name[nick]; // here we get the fd of the client we want to invite ERROR here Fd is not right
-    std::cout <<"chammmmmel" << chan << std::endl;
-    int ch = found_channel(chan);
+    int fd_rec = this->client_name[nick];
+    int ch = this->found_channel(chan);
     if(fd_rec == 0 || ch == -1)
     {
-        std::cout << fd_rec << " " << ch << std::endl;
-        std::string msg = ":ircserver 401 " + nick + " :No such nick/channel" ;
-        msg+= LF;
+        msg = ":ircserver 401 INVITE :No such nick/channel\r\n";
         send(fd, msg.c_str(), msg.size(), 0);
         return (-1);
     }
-    if (check_client_channel(nick, ch, 0))
+    if (check_client_channel(nick, ch, 0,0) != -1)
     {
-        msg = ":ircserver 443 " + this->clients[fd].get_nickname() + " " + nick + " " + chan + " :is already on channel" + LF;
-        send(fd, msg.c_str(), msg.size(), 0);
+        msg = ":ircserver 443 INVITE :is already on channel\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return (-1);
     }
+    if(check_client_channel(this->clients[i].get_nickname(), ch, 0,0) == -1)
+    {
+        msg = ":ircserver 442 INVITE INVITE :You're not on that channel\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+        return (-1);
+    }
+    this->channels[ch].invited.push_back(fd_rec);
     return (fd_rec);
 }
 

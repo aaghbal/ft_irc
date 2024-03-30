@@ -66,8 +66,8 @@ class Server
         void                        not_found_target_chan(int i, int k);
         void                        send_all_arg(int i, int fd_rec);
         void                        priv_msg_chan(int i, int j);
-        int                         invite_check(std::string &nick, std::string &chan, int fd);
-        int                         check_client_channel(std::string name,int fd, int flag);
+        int                         invite_check(std::string &nick, std::string &chan, int fd,int i);
+        int                         check_client_channel(std::string name,int ch_index, int flag,int kicker);
         void                        kick_command(int i);
         void                        erase_client_from_cha(int i, int num_ch);
         void                        get_response_name(std::string &cmd, int i, int fd);
@@ -80,5 +80,9 @@ class Server
         void                        join_channel(int n_ch, int i, int k);
         void                        joined_message(int fd, int i, int cha, int k);
         void                        Ch_modes(int i);
+        void                        to_upercase(std::string &cmd);
+        void                        password_channel(std::string &pass);
         void                        InviteCommand(int i);
+        void                        channel_topic(int i);
+
 };
