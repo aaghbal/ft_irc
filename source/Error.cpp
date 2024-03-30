@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:32:56 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 12:50:09 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 21:30:27 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void Error::ErrorSizePort(void) const
 }
 void Error::ErrorRangePort(void) const
 {
-    std::cerr << "Error ! out of range port [0,65535]." << std::endl;
+    std::cerr << "Error ! port range not valid" << std::endl;
     exit(1);
 }
 void Error::ErrorPortSyn(void) const

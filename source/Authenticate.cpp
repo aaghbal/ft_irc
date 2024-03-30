@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:39:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 14:00:04 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 21:42:02 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,14 +112,16 @@ void Server::authenticate(int j)
 void    Server::change_nikname(int i)
 {
     this->unk_com = false;
-    if (this->check_client_name(this->clients[i].cmd[1]))
+    if (this->clients[i].cmd.size() != 2)
+        Err_NeedMoreParam(i);
+    else if (this->check_client_name(this->clients[i].cmd[1]))
     {
         std::string rec_mes = ":ircserver 433 " + this->clients[i].cmd[1] + NICKNAME_IN_USE;
         send(this->clients[i].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
     }
     else
     {
-        get_response_name(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
+        get_response_nick(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
         this->clients[i].set_nickname(this->clients[i].cmd[1]);
         this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
     }

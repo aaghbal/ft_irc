@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 12:52:59 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 17:05:33 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 17:47:53 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,28 +28,7 @@ void Server::erase_client_from_cha(int i, int num_ch)
     }
 }
 
-void Server::get_response_name(std::string &cmd, int i, int fd)
-{
-    std::string msg;
-    msg += ":" + this->clients[i].get_nickname();
-    msg += "!~";
-    msg += this->clients[i].get_username();
-    msg += '@';
-    struct sockaddr_in t = this->client_info[fd];
-    msg += inet_ntoa(t.sin_addr);
-    if (this->clients[i].cmd[0] == "PRIVMSG")
-        msg += " PRIVMSG ";
-    else if (this->clients[i].cmd[0] == "JOIN")
-        msg += " JOIN ";
-    else if (this->clients[i].cmd[0] == "NICK")
-        msg += " NICK :";
-    msg += cmd;
-    if (this->clients[i].cmd[0] == "NICK")
-        msg += "\r\n";
-    else
-        msg += " ";
-    send(fd, msg.c_str(), msg.size(), 0);
-}
+
 
 int Server::found_channel(std::string const &chan)
 {
@@ -61,15 +40,11 @@ int Server::found_channel(std::string const &chan)
     return (-1);
 }
 
-void Server::not_found_target_msg(int i, int j, int fla)
+void Server::not_found_target_msg(int i, int j)
 {
-    send(this->clients[i].get_fd_client(),  "ircserv 401 ", 13, 0);
-    send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str() , this->clients[i].split_targ[j].size(), 0);
-    if (fla)
-        send(this->clients[i].get_fd_client(),  " :No such nick\r\n", 15, 0);
-    else
-        send(this->clients[i].get_fd_client(),  " :No such channel\r\n", 18, 0);
-        
+    std::string msg = ":ircserv 401 " + this->clients[i].get_nickname() + " " + this->clients[i].split_targ[j] + " ";
+    msg += ":No such nick\r\n";
+    send(this->clients[i].get_fd_client(),  msg.c_str(), msg.length(), 0);
 }
 
 
@@ -110,7 +85,7 @@ void Server::disconnect_client(int i)
 {
     this->unk_com = false;
     close(this->clients[i].get_fd_client());
-    this->clients[i - 1].cmd.clear();
+    this->clients[i].cmd.clear();
     this->polfd.erase(polfd.begin() + i + 1);
     this->clients.erase(this->clients.begin() + i);
      std::cout << "this client " << i + 1 << " closed" << std::endl;

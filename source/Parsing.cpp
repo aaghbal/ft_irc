@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/27 22:54:01 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 21:32:17 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 21:29:58 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void parsing(std::string password, std::string port)
 void    parsing_port(int port)
 {
     Error e;
-    if (port < 0 || port > 65535)
+    if (port < 1 || port > 65535)
         e.ErrorRangePort();
 }
 

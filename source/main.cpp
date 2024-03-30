@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:04:03 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 13:36:35 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 23:49:16 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@ int main(int ac, char **av)
     {
         if (ac != 3)
             throw Error();
-        parsing_port(atoi(av[2]));
-        parsing(av[1], av[2]);
+        parsing_port(atoi(av[1]));
+        parsing(av[2], av[1]);
         Server s;
-        s.set_password(av[1]);
-        s.set_port(atoi(av[2]));
+        s.set_password(av[2]);
+        s.set_port(atoi(av[1]));
         s.run_server();
     }
     catch(const Error& e)

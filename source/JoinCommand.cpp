@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 13:57:26 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 21:28:36 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 23:48:04 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,12 @@ void Server::create_new_chan(int i, int k)
     ch.set_name(this->clients[i].split_targ[k]);
     ch._Client.push_back(this->clients[i]);
     ch.operat.push_back(this->clients[i].get_fd_client());
+    std::cout << this->clients[i].split_targ[k].size() << std::endl;
+    if (this->clients[i].split_targ[k].size() == 1)
+    {
+        ErrBadChannelKey(i, k);
+        return ;
+    }
     if (this->clients[i].cmd.size() > 2)
     {
         if (!this->clients[i].split_pass[k].empty())
@@ -137,8 +143,7 @@ void Server::joined_message(int fd, int i, int cha, int k)
     std::string str = "";
     if (cha == -1)
     {
-        get_response_name(clients[i].split_targ[k], i, fd);
-        send(fd, "\r\n", 2, 0);
+        get_response_join(clients[i].split_targ[k], i, fd);
         str = ":ircserver 353 " + clients[i].get_nickname() + " = " + clients[i].split_targ[k] + " :@" + clients[i].get_nickname() + "\r\n";
         send(fd, str.c_str(), str.size(), 0);
         str.clear();
@@ -147,21 +152,11 @@ void Server::joined_message(int fd, int i, int cha, int k)
     {
         for(size_t j = 0; j < channels[cha]._Client.size(); j++)
         {
-            get_response_name(clients[i].split_targ[k], i, channels[cha]._Client[j].get_fd_client());
-            send(channels[cha]._Client[j].get_fd_client(), "\r\n", 2, 0);
+            get_response_join(clients[i].split_targ[k], i, channels[cha]._Client[j].get_fd_client());
         }
         str = ":ircserver 353 " + clients[i].get_nickname() + " = " + clients[i].split_targ[k] + " :";
-        for(size_t c = 0; c < channels[cha]._Client.size(); c++)
-        {
-            if (channels[cha].is_operator(channels[cha]._Client[c].get_fd_client()))
-                str += "@" + channels[cha]._Client[c].get_nickname();
-            else
-                str += channels[cha]._Client[c].get_nickname();
-            if (c + 1 != channels[cha]._Client.size())
-                str += " ";
-            else
-                str += "\r\n";
-        }
+        GetUserChannel(str, cha);
+
         send(fd, str.c_str(), str.size(), 0);
         str.clear();
     }

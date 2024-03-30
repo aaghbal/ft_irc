@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 13:27:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 17:13:59 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 21:16:16 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void Server::Ch_modes(int i)
     this->unk_com = false;
     std::string allowed_modes = "itkol";
     int ch_index = found_channel(this->clients[i].cmd[1]);
+    if (this->clients[i].cmd.size() < 3)
+        return ;
     if (ch_index == -1)
     {
         send(this->clients[i].get_fd_client(), ":ircserver 403 :No such channel\r\n", 33, 0);

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 13:39:54 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/30 23:43:06 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,17 +61,19 @@ class Server
         void                        private_message(int i);
         int                         found_channel(std::string const &chan);
         void                        join_cmd(int i);
-        void                        print(std::vector<std::string> &cmd, int fd);
         void                        split_target(std::string &cmd, int i, int flag);
-        void                        not_found_target_msg(int i, int j, int fla);
+        void                        not_found_target_msg(int i, int j);
         void                        not_found_target_chan(int i, int k);
-        void                        send_all_arg(int i, int fd_rec);
+        void                        all_arg(std::string &msg, int i);
         void                        priv_msg_chan(int i, int j);
         int                         invite_check(std::string &nick, std::string &chan, int fd);
         int                         check_client_channel(std::string name,int fd, int flag);
         void                        kick_command(int i);
         void                        erase_client_from_cha(int i, int num_ch);
-        void                        get_response_name(std::string &cmd, int i, int fd);
+        void                        get_response_join(std::string &cmd, int i, int fd);
+        void                        get_response_nick(std::string &cmd, int i, int fd);
+        void                        get_response_privmsg(std::string &msg, std::string &cmd, int i, int fd);
+        void                        GetUserChannel(std::string &msg, int ch);
         void                        priv_msg_user(int i, int j);    
         void                        authenticate(int j);                
         bool                        check_client_name(std::string name);
@@ -83,5 +85,8 @@ class Server
         void                        Ch_modes(int i);
         void                        to_upercase(std::string &cmd);
         void                        password_channel(std::string &pass);
+        void                        CannotendToChan(int i, int j);
+        void                        Err_NeedMoreParam(int i);
+        void                        ErrBadChannelKey(int i, int k);
 
 };
