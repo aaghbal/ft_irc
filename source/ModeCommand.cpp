@@ -93,7 +93,7 @@ void Server::Ch_modes(int i)
             }
             else
             {
-                this->channels[ch_index].set_topic(this->clients[i].cmd[param]);
+                this->channels[ch_index].topic= this->clients[i].cmd[param];
                 this->channels[ch_index].mode += this->clients[i].cmd[2][j];
                 msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " t\r\n";
             }   

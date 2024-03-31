@@ -114,10 +114,6 @@ void Server::recive_data(int i)
         case 'N':
                 if (this->clients[i - 1].cmd[0] == "NICK")
                     change_nikname(i - 1);
-        case 'I':
-                if (this->clients[i - 1].cmd[0] == "INVITE")
-                    InviteCommand(i - 1);
-                break;
         case 'T':
                 if (this->clients[i - 1].cmd[0] == "TOPIC")
                     channel_topic(i - 1);

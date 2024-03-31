@@ -61,21 +61,3 @@ int Server::invite_check(std::string &nick, std::string &chan, int fd,int i)
     return (fd_rec);
 }
 
-void Server::InviteCommand(int i)
-{
-    if (this->clients[i].cmd.size() != 3)
-    {
-        std::string msg = ":ircserver 461 INVITE :Not enough parameters\r\n";
-        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
-        return ;
-    }
-    std::string msg;
-    this->unk_com = false;
-    int fd_rec = invite_check(this->clients[i].cmd[1], this->clients[i].cmd[2], this->clients[i].get_fd_client());
-    if (fd_rec == -1)
-        return ;
-    msg =  this->clients[i].cmd[1] + " :" + this->clients[i].cmd[2] + "\r\n";
-    int ch = this->found_channel(this->clients[i].cmd[2]);
-    this->channels[ch].invited.push_back(this->clients[i].get_fd_client());
-    get_response_name(msg,i, fd_rec);    
-}
