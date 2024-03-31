@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 23:43:06 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 17:20:40 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ class Server
         void                        recive_data(int i);
         void                        init_client(int i);
         void                        recv_data(int i);
+        void                        Command_Responses(int i);
+        bool                        parsing_nickname(int i);
         bool                        unk_com;
 
         std::vector<std::string>    split_cmd(std::string &cmd);
@@ -88,5 +90,9 @@ class Server
         void                        CannotendToChan(int i, int j);
         void                        Err_NeedMoreParam(int i);
         void                        ErrBadChannelKey(int i, int k);
+        void                        Err_AlreadRegistred(int i);
+        void                        No_NicknameGiven(int i);
+        void                        Err_NotRegistered(int i);
+        void                        ErrOneusNickname(int i);
 
 };

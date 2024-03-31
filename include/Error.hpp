@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:15:24 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/28 12:48:49 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 13:56:46 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 void parsing(std::string password, std::string port);
 void parsing_port(int port);
+
 class Error {
   
     public:

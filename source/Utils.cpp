@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 12:52:59 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 17:47:53 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 15:54:24 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void Server::erase_client_from_cha(int i, int num_ch)
     {
         if (check_client_channel(this->clients[i].split_targ[j], num_ch, 1) == false)
         {
-            send(this->clients[i].get_fd_client(), "ircserver 441 ", 14, 0);
+            send(this->clients[i].get_fd_client(), "IRCsERVER 441 ", 14, 0);
             send(this->clients[i].get_fd_client(), this->clients[i].split_targ[j].c_str(), this->clients[i].split_targ[j].size(), 0);
             send(this->clients[i].get_fd_client(), " ", 1, 0);
             send(this->clients[i].get_fd_client(), this->clients[i].cmd[1].c_str(), this->clients[i].cmd[1].size(), 0);
@@ -51,7 +51,7 @@ void Server::not_found_target_msg(int i, int j)
 void Server::not_found_target_chan(int i, int k)
 {
     std::string info = this->clients[i].get_nickname() + " " + this->clients[i].split_targ[k];
-    std::string msg = ":ircserver 403 " + info + " :No such channel\r\n";
+    std::string msg = ":IRCsERVER 403 " + info + " :No such channel\r\n";
     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
     info.clear();
     msg.clear();

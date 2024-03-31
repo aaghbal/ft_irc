@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:39:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 21:42:02 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 17:22:31 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,21 @@ void Server::check_password(int j)
 {
     if (this->clients[j].cmd[0] == "PASS")
     {
-        if (this->password == this->clients[j].cmd[1])
+        if (this->clients[j].cmd.size() == 1)
+            Err_NeedMoreParam(j);
+        else if (this->password == this->clients[j].cmd[1])
             this->clients[j].authenticate = true;
         else
         {
-            std::string rec_mes = ":ircserver 464 " + this->clients[j].cmd[1] + INCCORRECT_PASS;
+            std::string rec_mes = ":IRCsERVER 464 " + this->clients[j].cmd[1] + INCCORRECT_PASS;
             send(this->clients[j].get_fd_client(), rec_mes.c_str() , rec_mes.size(), 0);
         }
     }
+    else if (this->clients[j].cmd[0] == "USER" ||this->clients[j].cmd[0] == "NICK")
+        Err_NotRegistered(j);
     else
     {
-        std::string msg = ":ircserver 421 " + this->clients[j].get_nickname() + " " + this->clients[j].cmd[0];
+        std::string msg = ":IRCsERVER 421" + this->clients[j].get_nickname() + " " + this->clients[j].cmd[0];
         msg += " :Unknown command\r\n";
         send(this->clients[j].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
@@ -38,9 +42,15 @@ void Server::check_nickname(int j)
 {
     if (this->clients[j].cmd[0] == "NICK" && this->clients[j].authenticate)
     {
-        if (this->check_client_name(this->clients[j].cmd[1]))
+        if (this->clients[j].authenticate == false)
+            Err_NotRegistered(j);
+        else if (this->clients[j].cmd.size() == 1)
+            Err_NeedMoreParam(j);
+        else if (parsing_nickname(j))
+            return ;
+        else if (this->check_client_name(this->clients[j].cmd[1]))
         {
-            std::string rec_mes = ":ircserver 433 " + this->clients[j].cmd[1] + NICKNAME_IN_USE;
+            std::string rec_mes = ":IRCsERVER 433 " + this->clients[j].cmd[1] + NICKNAME_IN_USE;
             send(this->clients[j].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
         }
         else
@@ -52,7 +62,7 @@ void Server::check_nickname(int j)
     }
     else
     {
-        std::string msg = ":ircserver 421 " + this->clients[j].get_nickname() + " " + this->clients[j].cmd[0];
+        std::string msg = ":IRCsERVER 421 " + this->clients[j].get_nickname() + " " + this->clients[j].cmd[0];
         msg += " :Unknown command\r\n";
         send(this->clients[j].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
@@ -62,21 +72,23 @@ void Server::check_nickname(int j)
 void Server::check_username(int j)
 {
     if (this->clients[j].nick_succ == false)
-    {
         send(this->clients[j].get_fd_client(), "Enter the nickname first\r\n", 26, 0);
-        return ;
-    }
-    if(this->clients[j].cmd[0] == "USER") 
+    else if(this->clients[j].cmd[0] == "USER") 
     {
-        this->clients[j].set_username(this->clients[j].cmd[1]);
-        this->clients[j].reg_end = true;
-        std::string rec_mes = ":ircserver 001 " + this->clients[j].cmd[1] + WELCOME_MSG;
-        send(this->clients[j].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
-        rec_mes.clear();
+        if (this->clients[j].authenticate == false)
+            Err_NotRegistered(j);
+        else if (this->clients[j].cmd.size() == 1)
+            Err_NeedMoreParam(j);
+        else
+        {
+            this->clients[j].set_username(this->clients[j].cmd[1]);
+            this->clients[j].reg_end = true;
+            Command_Responses(j);
+        }
     }
     else
     {
-        std::string msg = ":ircserver 421 " + this->clients[j].get_nickname() + " " + this->clients[j].cmd[0];
+        std::string msg = ":IRCsERVER 421 " + this->clients[j].get_nickname() + " " + this->clients[j].cmd[0];
         msg += " :Unknown command\r\n";
         send(this->clients[j].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
@@ -85,12 +97,6 @@ void Server::check_username(int j)
 
 void Server::authenticate(int j)
 {
-    if (this->clients[j].cmd.size() != 2 && this->clients[j].cmd.size() != 5)
-    {
-        send(this->clients[j].get_fd_client(), "Error parameters\r\n", 18, 0);
-        this->clients[j].cmd.clear();
-        return ;
-    }
     if (this->clients[j].authenticate == false)
     {
         check_password(j);
@@ -112,11 +118,13 @@ void Server::authenticate(int j)
 void    Server::change_nikname(int i)
 {
     this->unk_com = false;
-    if (this->clients[i].cmd.size() != 2)
-        Err_NeedMoreParam(i);
+    if (this->clients[i].cmd.size() != 2 || (this->clients[i].cmd.size() == 2 && this->clients[i].cmd[1] == ":"))
+        No_NicknameGiven(i);
+    else if (parsing_nickname(i))
+        return ;
     else if (this->check_client_name(this->clients[i].cmd[1]))
     {
-        std::string rec_mes = ":ircserver 433 " + this->clients[i].cmd[1] + NICKNAME_IN_USE;
+        std::string rec_mes = ":IRCsERVER 433 " + this->clients[i].cmd[1] + NICKNAME_IN_USE;
         send(this->clients[i].get_fd_client(), rec_mes.c_str(), rec_mes.size(), 0);
     }
     else

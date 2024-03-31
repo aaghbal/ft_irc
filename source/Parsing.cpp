@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/27 22:54:01 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 21:29:58 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 17:20:21 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,4 +110,19 @@ void Server::password_channel(std::string &pass)
         {
                 pass.erase(i);
         }
+}
+
+bool Server::parsing_nickname(int i)
+{
+    if (this->clients[i].cmd[1][0] == '#')
+    {
+        ErrOneusNickname(i);
+        return  true;
+    }
+    else if (isdigit(this->clients[i].cmd[1][0]))
+    {
+        ErrOneusNickname(i);
+        return  true;
+    }
+    return  false;
 }

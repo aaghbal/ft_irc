@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 14:16:00 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 23:42:45 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 17:24:27 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,20 +70,70 @@ void Server::GetUserChannel(std::string &msg, int ch)
 
 void Server::CannotendToChan(int i, int j)
 {
-    std::string msg = ":ircserver 404 " + this->clients[i].get_nickname() + " " + this->clients[i].split_targ[j];
+    std::string msg = ":IRCsERVER 404 " + this->clients[i].get_nickname() + " " + this->clients[i].split_targ[j];
     msg += " :Cannot send to channel\r\n";
     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
 }
 
 void Server::Err_NeedMoreParam(int i)
 {
-    std::string msg = ":ircserver 461 " + this->clients[i].get_nickname() + " " + this->clients[i].cmd[0] + " :Not enough parameters\r\n";
+    std::string msg = ":IRCsERVER 461" + this->clients[i].get_nickname() + " " + this->clients[i].cmd[0] + " :Not enough parameters\r\n";
     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
 }
 
 void Server::ErrBadChannelKey(int i, int k)
 {
     std::string info = this->clients[i].get_nickname() + " " + this->clients[i].split_targ[k];
-    std::string msg = ":ircserver 475 " + info + " :Cannot join channel, you need the correct key (+k)\r\n";
+    std::string msg = ":IRCsERVER 475 " + info + " :Cannot join channel, you need the correct key (+k)\r\n";
     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
 } 
+
+void Server::Err_AlreadRegistred(int i)
+{
+    this->unk_com = false;
+    std::string msg = ":IRCsERVER 462 " + this->clients[i].get_nickname() + " :You may not reregister\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    
+}
+
+void Server::No_NicknameGiven(int i)
+{
+    this->unk_com = false;
+    std::string msg = ":IRCsERVER 431 " + this->clients[i].get_nickname() + " :No nickname given\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    
+}
+
+void Server::Err_NotRegistered(int i)
+{
+    this->unk_com = false;
+    std::string msg = ":IRCsERVER 451 " + this->clients[i].cmd[0] + " :You have not registered\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    
+}
+
+void Server::ErrOneusNickname(int i)
+{
+    this->unk_com = false;
+    std::string msg;
+    if (!this->clients[i].get_nickname().empty())
+        msg = ":IRCsERVER 432 " + this->clients[i].get_nickname() + " " + this->clients[i].cmd[1] + " :Erroneous Nickname\r\n";
+    else
+        msg = ":IRCsERVER 432 * " + this->clients[i].cmd[1] + " :Erroneous Nickname\r\n";
+    
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    
+}
+
+void Server::Command_Responses(int i)
+{
+    std::string msg = ":IRCsERVER 001 " + this->clients[i].get_nickname() + WELCOME_MSG + this->clients[i].get_nickname();
+    msg += " [!" + this->clients[i].cmd[1] + "@" +inet_ntoa(this->client_info[this->clients[i].get_fd_client()].sin_addr) + "]\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    msg = ":IRCsERVER 002 " + this->clients[i].get_nickname() + " :Your host is IRCsERVER, running version 1.0.0\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    msg = ":IRCsERVER 003 " + this->clients[i].get_nickname() + " :This server was created Thu Feb 29, 2024 at 17:50:31\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+    msg = ":IRCsERVER 004 " + this->clients[i].get_nickname() + " IRCsERVER 1.0.0 itkol kol\r\n";
+    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+}

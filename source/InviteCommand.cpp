@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:41:58 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 14:42:14 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 14:10:05 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,9 @@
 
 int Server::invite_check(std::string &nick, std::string &chan, int fd)
 {
-    std::cout << "nick : " << nick << " chan : " << chan << " fd " << fd << std::endl;
     if (nick.empty() || chan.empty())
         return (-1);
     int fd_rec = this->client_name[nick];
-    std::cout << "hey " << fd_rec << std::endl;
     int ch = this->found_channel(chan);
     if(fd_rec == 0)
     {

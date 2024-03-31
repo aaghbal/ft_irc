@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 22:01:17 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 17:42:32 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,8 @@ void Server::recive_data(int i)
         case 'P':
                 if (this->clients[i - 1].cmd[0] == "PRIVMSG")
                     private_message(i - 1);
+                if (this->clients[i - 1].cmd[0] == "PASS")
+                    Err_AlreadRegistred(i - 1);
                 break;
         case 'J':
                 if (this->clients[i - 1].cmd[0] == "JOIN")
@@ -106,14 +108,15 @@ void Server::recive_data(int i)
         case 'N':
                 if (this->clients[i - 1].cmd[0] == "NICK")
                     change_nikname(i - 1);
+        case 'U':
+                if (this->clients[i - 1].cmd[0] == "USER")
+                    Err_AlreadRegistred(i - 1);
                 break;
     }
     if (this->unk_com)
     {
-        std::string msg = ":ircserver 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0];
-        msg += " :Unknown command\r\n";
+        std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
         send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
-        msg.clear();
     }
     this->unk_com = true;
 }

@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 13:57:26 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/30 23:48:04 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 15:54:24 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void Server::join_cmd(int i)
     std::string msg;
     if(this->clients[i].cmd.size() < 2)
     {
-        msg = ":ircserver 461 " + this->clients[i].get_nickname() + " JOIN :Not enough parameters\r\n";
+        msg = ":IRCsERVER 461 " + this->clients[i].get_nickname() + " JOIN :Not enough parameters\r\n";
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         msg.clear();
         return ;
@@ -38,7 +38,7 @@ void Server::join_cmd(int i)
         else if (check_client_channel(this->clients[i].cmd[1], n_ch, 0) != -1)
         {
             std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
-            msg = ":ircserver 443 " + info + " :is already on channel\r\n";
+            msg = ":IRCsERVER 443 " + info + " :is already on channel\r\n";
             send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
             info.clear();
             msg.clear();
@@ -57,20 +57,10 @@ void Server::create_new_chan(int i, int k)
     ch.set_name(this->clients[i].split_targ[k]);
     ch._Client.push_back(this->clients[i]);
     ch.operat.push_back(this->clients[i].get_fd_client());
-    std::cout << this->clients[i].split_targ[k].size() << std::endl;
     if (this->clients[i].split_targ[k].size() == 1)
     {
         ErrBadChannelKey(i, k);
         return ;
-    }
-    if (this->clients[i].cmd.size() > 2)
-    {
-        if (!this->clients[i].split_pass[k].empty())
-        {
-            password_channel(this->clients[i].split_pass[k]);
-            ch.password = this->clients[i].split_pass[k];
-            ch.mode += 'k';
-        }
     }
     this->channels.push_back(ch);
     joined_message(this->clients[i].get_fd_client(), i, -1, k); 
@@ -82,7 +72,7 @@ bool Server::check_mode_chan(int n_ch, int i)
     std::string msg = "";
     if (this->channels[n_ch].mode.find('i') != std::string::npos)
     {
-        msg = ":ircserver 473 " + info + " :Cannot join channel (+i)\r\n";
+        msg = ":IRCsERVER 473 " + info + " :Cannot join channel (+i)\r\n";
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         info.clear();
         msg.clear();
@@ -90,7 +80,7 @@ bool Server::check_mode_chan(int n_ch, int i)
     }
     else if (this->channels[n_ch].mode.find('k') != std::string::npos && this->clients[i].cmd.size() < 3)
     {
-        msg = ":ircserver 475 " + info + " :Cannot join channel (+k)\r\n";
+        msg = ":IRCsERVER 475 " + info + " :Cannot join channel (+k)\r\n";
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         info.clear();
         msg.clear();
@@ -98,7 +88,7 @@ bool Server::check_mode_chan(int n_ch, int i)
     }
     else if (this->channels[n_ch].mode.find('l') != std::string::npos && this->channels[n_ch]._Client.size() == this->channels[n_ch].max_clients)
     {
-        msg = ":ircserver 471 " + info + " :Cannot join channel (+l)\r\n";
+        msg = ":IRCsERVER 471 " + info + " :Cannot join channel (+l)\r\n";
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         info.clear();
         msg.clear();
@@ -106,7 +96,7 @@ bool Server::check_mode_chan(int n_ch, int i)
     }
     else if (this->channels[n_ch].joined_in_channel(this->clients[i].get_fd_client()))
     {
-        msg = ":ircserver 443 " + info + " :is already on channel\r\n";
+        msg = ":IRCsERVER 443 " + info + " :is already on channel\r\n";
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         info.clear();
         msg.clear();
@@ -121,7 +111,7 @@ void Server::join_channel(int n_ch, int i, int k)
     if (this->channels[n_ch].mode.find('k') != std::string::npos)
     {
         std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
-        std::string msg = ":ircserver 475 " + info + " :Cannot join channel (+k) - bad key\r\n";
+        std::string msg = ":IRCsERVER 475 " + info + " :Cannot join channel (+k) - bad key\r\n";
         if (this->channels[n_ch].password == this->clients[i].cmd[2])
         {
             this->channels[n_ch]._Client.push_back(this->clients[i]);
@@ -144,7 +134,7 @@ void Server::joined_message(int fd, int i, int cha, int k)
     if (cha == -1)
     {
         get_response_join(clients[i].split_targ[k], i, fd);
-        str = ":ircserver 353 " + clients[i].get_nickname() + " = " + clients[i].split_targ[k] + " :@" + clients[i].get_nickname() + "\r\n";
+        str = ":IRCsERVER 353 " + clients[i].get_nickname() + " = " + clients[i].split_targ[k] + " :@" + clients[i].get_nickname() + "\r\n";
         send(fd, str.c_str(), str.size(), 0);
         str.clear();
     }
@@ -154,13 +144,13 @@ void Server::joined_message(int fd, int i, int cha, int k)
         {
             get_response_join(clients[i].split_targ[k], i, channels[cha]._Client[j].get_fd_client());
         }
-        str = ":ircserver 353 " + clients[i].get_nickname() + " = " + clients[i].split_targ[k] + " :";
+        str = ":IRCsERVER 353 " + clients[i].get_nickname() + " = " + clients[i].split_targ[k] + " :";
         GetUserChannel(str, cha);
 
         send(fd, str.c_str(), str.size(), 0);
         str.clear();
     }
-    str = ":ircserver 366 " + clients[i].get_nickname() + " " + clients[i].split_targ[k] + " :End of /NAMES list.\r\n";
+    str = ":IRCsERVER 366 " + clients[i].get_nickname() + " " + clients[i].split_targ[k] + " :End of /NAMES list.\r\n";
     send(fd, str.c_str(), str.size(), 0);
     str.clear();
 }
