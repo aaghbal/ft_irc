@@ -52,6 +52,8 @@ void Server::priv_msg_chan(int i, int j)
                         all_arg(msg, i);
                     else
                         msg += this->clients[i].cmd[2] + "\r\n";
+                    if(bot(msg, i, this->channels[k].get_name_channel()))
+                        return ;
                     send(this->channels[k]._Client[c].get_fd_client(),  msg.c_str(), msg.size(), 0);
                 }
             }

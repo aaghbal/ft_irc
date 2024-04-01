@@ -99,7 +99,7 @@ void Server::recive_data(int i)
                 break;
         case 'K':
                 if (this->clients[i - 1].cmd[0] == "KICK")
-                    kick_command(i - 1);
+                    kick_command(i - 1,0);
                 break;
         case 'M':
                 if (this->clients[i - 1].cmd[0] == "MODE")
@@ -117,11 +117,11 @@ void Server::recive_data(int i)
                     Err_AlreadRegistred(i - 1);
                 break;
     }
-    if (this->unk_com)
-    {
-        std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
-        send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
-    }
+    // if (this->unk_com)
+    // {
+    //     std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
+    //     send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
+    // }
     this->unk_com = true;
 }
 

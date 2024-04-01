@@ -44,4 +44,3 @@
 #define NICKNAME_REQUIRED "IRCsERVER 431 :No nickname given\r\n"
 #define NICKNAME_TOO_LONG "IRCsERVER 432 :Nickname too long\r\n"
 #define NICKNAME_TOO_SHORT "IRCsERVER 433 :Nickname too short\r\n"
-#define LF "\f\n"

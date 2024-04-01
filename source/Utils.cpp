@@ -54,7 +54,7 @@ void Server::not_found_target_msg(int i, int j, int fla)
 void Server::not_found_target_chan(int i, int k)
 {
     std::string info = this->clients[i].get_nickname() + " " + this->clients[i].split_targ[k];
-    std::string msg = ":ircserver 403 " + info + " :No such channel UTILL\r\n";
+    std::string msg = ":ircserver 403 " + info + " :No such channel\r\n";
     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
     info.clear();
     msg.clear();
@@ -80,7 +80,11 @@ int Server::check_client_channel(std::string name,int ch_index, int flag, int ki
                 {
                     this->channels[ch_index].Kiked_Client.push_back(this->channels[ch_index]._Client[i].get_nickname());
                     this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
-                    std::string msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + " KICK " + this->channels[ch_index].get_name_channel() + " " + name +  "\r\n";
+                    std::string msg;
+                    if(this->clients[kicker].cmd.size() == 4)
+                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + " KICK " + this->channels[ch_index].get_name_channel() + " " + name +' '+ this->clients[kicker].cmd[3] + "\r\n";
+                    else
+                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + " KICK " + this->channels[ch_index].get_name_channel() + " " + name + " :Kicked by " + this->clients[kicker].get_nickname() + "\r\n";
                     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
                 }
             return i;

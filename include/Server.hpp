@@ -70,7 +70,7 @@ class Server
         void                        priv_msg_chan(int i, int j);
         int                         invite_check(std::string &nick, std::string &chan, int fd,int i);
         int                         check_client_channel(std::string name,int ch_index, int flag,int kicker);
-        void                        kick_command(int i);
+        void                        kick_command(int i,bool flag);
         void                        erase_client_from_cha(int i, int num_ch);
         void                        get_response_join(std::string &cmd, int i, int fd);
         void                        get_response_nick(std::string &cmd, int i, int fd);
@@ -96,5 +96,6 @@ class Server
         void                        No_NicknameGiven(int i);
         void                        Err_NotRegistered(int i);
         void                        ErrOneusNickname(int i);
+        bool                        bot(std::string &msg, int j,std::string &chan);
 
 };
