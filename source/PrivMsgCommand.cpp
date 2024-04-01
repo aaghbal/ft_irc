@@ -38,7 +38,7 @@ void Server::priv_msg_chan(int i, int j)
     {
         if (this->channels[k].get_name_channel() == this->clients[i].split_targ[j])
         {
-            if (check_client_channel(this->clients[i].get_nickname(), k, 0) == -1)
+            if (check_client_channel(this->clients[i].get_nickname(), k, 0,0) == -1)
             {
                 CannotendToChan(i, j);
                 return ;
@@ -71,7 +71,7 @@ void    Server::priv_msg_user(int i, int j)
         return ;
     }
     else if (fd_rec == 0)
-        not_found_target_msg(i, j);
+        not_found_target_msg(i, j,0);
     else
     {
         get_response_privmsg(msg, this->clients[i].split_targ[j], i, fd_rec);

@@ -28,28 +28,6 @@ void Server::erase_client_from_cha(int i, int num_ch)
     }
 }
 
-void Server::get_response_name(std::string &cmd, int i, int fd)
-{
-    std::string msg;
-    msg += ":" + this->clients[i].get_nickname();
-    msg += "!~";
-    msg += this->clients[i].get_username();
-    msg += '@';
-    struct sockaddr_in t = this->client_info[fd];
-    msg += inet_ntoa(t.sin_addr);
-    if (this->clients[i].cmd[0] == "PRIVMSG")
-        msg += " PRIVMSG ";
-    else if (this->clients[i].cmd[0] == "JOIN")
-        msg += " JOIN ";
-    else if (this->clients[i].cmd[0] == "NICK")
-        msg += " NICK :";
-    msg += cmd;
-    if (this->clients[i].cmd[0] == "NICK")
-        msg += "\r\n";
-    else
-        msg += " ";
-    send(fd, msg.c_str(), msg.size(), 0);
-}
 
 int Server::found_channel(std::string const &chan)
 {
@@ -92,7 +70,7 @@ bool Server::check_client_name(std::string name)
     return false;
 }
 
-int Server::check_client_channel(std::string name,int ch_index, int flag)
+int Server::check_client_channel(std::string name,int ch_index, int flag, int kicker)
 {
     for (size_t i = 0; i < this->channels[ch_index]._Client.size(); i++)
     {

@@ -38,7 +38,7 @@ void Server::join_cmd(int i) //pasword check needed
         else if (check_client_channel(this->clients[i].cmd[1], n_ch, 0,0) != -1)
         {
             std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
-            msg = ":ircserver 443 " + info + " :is already on channel\r\n";
+            msg = ":IRCsERVER 443 " + info + " :is already on channel\r\n";
             send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
             info.clear();
             msg.clear();

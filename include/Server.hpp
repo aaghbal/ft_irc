@@ -64,7 +64,7 @@ class Server
         int                         found_channel(std::string const &chan);
         void                        join_cmd(int i);
         void                        split_target(std::string &cmd, int i, int flag);
-        void                        not_found_target_msg(int i, int j);
+        void                        not_found_target_msg(int i, int j, int fla);
         void                        not_found_target_chan(int i, int k);
         void                        all_arg(std::string &msg, int i);
         void                        priv_msg_chan(int i, int j);
