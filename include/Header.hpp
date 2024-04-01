@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:51:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/23 16:54:08 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 15:54:24 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,16 @@
 #define MAX_CLIENTS 200
 
 #define INCCORRECT_PASS " :Password incorrect\r\n"
-#define PASS_REQUIRED "ircserver 461 :Password required\r\n"
-#define PASS_ACCEPTED "ircserver 462 :Password accepted\r\n"
-#define PASS_CHANGED "ircserver 463 :Password changed\r\n"
-#define PASS_MISMATCH "ircserver 465 :Password mismatch\r\n"
-#define PASS_TOO_LONG "ircserver 466 :Password too long\r\n"
-#define PASS_TOO_SHORT "ircserver 467 :Password too short\r\n"
-#define WELCOME_MSG " :Welcome to the Internet Relay Network\r\n"
+#define PASS_REQUIRED "IRCsERVER 461 :Password required\r\n"
+#define PASS_ACCEPTED "IRCsERVER 462 :Password accepted\r\n"
+#define PASS_CHANGED "IRCsERVER 463 :Password changed\r\n"
+#define PASS_MISMATCH "IRCsERVER 465 :Password mismatch\r\n"
+#define PASS_TOO_LONG "IRCsERVER 466 :Password too long\r\n"
+#define PASS_TOO_SHORT "IRCsERVER 467 :Password too short\r\n"
+#define WELCOME_MSG " :Welcome to the IRCsERVER Network "
 #define NICKNAME_IN_USE " :Nickname is already in use\r\n"
-#define NICKNAME_CHANGED "ircserver 432 :Nickname changed\r\n"
-#define NICKNAME_REQUIRED "ircserver 431 :No nickname given\r\n"
-#define NICKNAME_TOO_LONG "ircserver 432 :Nickname too long\r\n"
-#define NICKNAME_TOO_SHORT "ircserver 433 :Nickname too short\r\n"
+#define NICKNAME_CHANGED "IRCsERVER 432 :Nickname changed\r\n"
+#define NICKNAME_REQUIRED "IRCsERVER 431 :No nickname given\r\n"
+#define NICKNAME_TOO_LONG "IRCsERVER 432 :Nickname too long\r\n"
+#define NICKNAME_TOO_SHORT "IRCsERVER 433 :Nickname too short\r\n"
 #define LF "\f\n"

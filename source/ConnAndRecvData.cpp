@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 17:13:32 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 17:42:32 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,10 @@ void Server::add_new_connection(void)
 int    myRevc(std::string &str , int fd)
 {
     char buff[1001];
-    int ret ;
-    while (str.find("\r\n") == std::string::npos)
-    {
-        ret = recv(fd, buff, 1000, 0);
-        buff[ret] = '\0';
-        str += buff;
-        if (ret <= 0)
-            return ret;
-    }
+    int ret = recv(fd, buff, 1000, 0);
+    if (ret > 0)
+        buff[ret - 1] = '\0';
+    str = buff;
     return ret;
 }
 
@@ -80,6 +75,7 @@ void Server::recive_data(int i)
     this->clients[i - 1].cmd = split_cmd(this->clients[i - 1].buff);
     if (this->clients[i - 1].cmd.size() == 0)
         return ;
+    to_upercase( this->clients[i - 1].cmd[0]);
     if (!this->clients[i - 1].reg_end)
     {
         authenticate(i - 1);
@@ -94,6 +90,8 @@ void Server::recive_data(int i)
         case 'P':
                 if (this->clients[i - 1].cmd[0] == "PRIVMSG")
                     private_message(i - 1);
+                if (this->clients[i - 1].cmd[0] == "PASS")
+                    Err_AlreadRegistred(i - 1);
                 break;
         case 'J':
                 if (this->clients[i - 1].cmd[0] == "JOIN")
@@ -114,19 +112,17 @@ void Server::recive_data(int i)
         case 'N':
                 if (this->clients[i - 1].cmd[0] == "NICK")
                     change_nikname(i - 1);
-        case 'T':
-                if (this->clients[i - 1].cmd[0] == "TOPIC")
-                    channel_topic(i - 1);
+        case 'U':
+                if (this->clients[i - 1].cmd[0] == "USER")
+                    Err_AlreadRegistred(i - 1);
                 break;
     }
     if (this->unk_com)
     {
-        std::string msg = ":ircserver 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0];
-        msg += " :Unknown command\r\n";
+        std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
         send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
-        msg.clear();
     }
-    // this->clients[i - 1].cmd.clear();
+    this->unk_com = true;
 }
 
 bool Server::check_recv_message(int i)

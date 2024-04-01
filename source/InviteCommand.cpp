@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:41:58 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/26 14:42:14 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/03/31 14:10:05 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,27 +14,6 @@
 
 void Server::InviteCommand(int i)
 {
-    std::string msg;
-    if(this->clients[i].cmd.size() != 3)
-    {
-        msg = ":ircserver 461 INVITE :Not enough parameters\r\n";
-        send(this->clients[i].get_fd_client(), "Invalid number of arguments\r\n", 29, 0);
-        return;
-    }
-    int fd = invite_check(this->clients[i].cmd[2], this->clients[i].cmd[1], this->clients[i].get_fd_client(),i);
-    if (fd == -1)
-        return;
-
-    msg = ":" + this->clients[i].get_nickname() + "!" + this->clients[i].get_username() + "@" + "localhost" + " INVITE " + this->clients[i].cmd[1] + " :" + this->clients[i].cmd[2] + "\r\n";
-    send(fd, msg.c_str(), msg.size(), 0);
-    //invitation sent
-    msg = ":ircserver 341 INVITE :Invite to channel sent\r\n";
-    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
-}
-
-int Server::invite_check(std::string &nick, std::string &chan, int fd,int i)
-{
-    std::string msg;
     if (nick.empty() || chan.empty())
         return (-1);
     int fd_rec = this->client_name[nick];

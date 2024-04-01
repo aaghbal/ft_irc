@@ -92,7 +92,7 @@ bool Server::check_client_name(std::string name)
     return false;
 }
 
-int Server::check_client_channel(std::string name,int ch_index, int flag,int kicker)
+int Server::check_client_channel(std::string name,int ch_index, int flag)
 {
     for (size_t i = 0; i < this->channels[ch_index]._Client.size(); i++)
     {
