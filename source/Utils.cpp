@@ -81,6 +81,7 @@ int Server::check_client_channel(std::string name,int ch_index, int flag, int ki
                     this->channels[ch_index].Kiked_Client.push_back(this->channels[ch_index]._Client[i].get_nickname());
                     this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
                     std::string msg;
+                    std::cout << this->clients[kicker].cmd.size() << std::endl;
                     if(this->clients[kicker].cmd.size() == 4)
                         msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + " KICK " + this->channels[ch_index].get_name_channel() + " " + name +' '+ this->clients[kicker].cmd[3] + "\r\n";
                     else

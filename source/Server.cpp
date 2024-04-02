@@ -16,6 +16,7 @@ Server::Server()
 {
     this->client_info.clear();
     this->unk_com = true;
+    this->max_clients = 1000;
 }
 
 void Server::set_port(int port)

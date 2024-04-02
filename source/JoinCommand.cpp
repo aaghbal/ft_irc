@@ -58,6 +58,7 @@ void Server::create_new_chan(int i, int k)
     ch._Client.push_back(this->clients[i]);
     ch.topic = "No topic is set";
     ch.operat.push_back(this->clients[i].get_fd_client());
+    ch.max_clients = 1000;
     if (this->clients[i].split_targ[k].size() == 1)
     {
         ErrBadChannelKey(i, k);

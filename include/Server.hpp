@@ -23,6 +23,7 @@ class Server
     private :
         int                                 fd_s;
         int                                 port;
+        int                                 max_clients;
         int                                 nbyteread;
         std::string                         password;
         std::string                         client_pass;

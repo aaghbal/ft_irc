@@ -45,6 +45,12 @@ void Server::add_new_connection(void)
         std::cout << "new client with fd : " << new_fd_s << std::endl;
         if (new_fd_s == -1)
             throw Error();
+        if (this->clients.size() == this->max_clients)
+        {
+            std::string msg = ":IRCsERVER 421 * :Max clients reached\r\n";
+            send(new_fd_s, msg.c_str(), msg.size(), 0);
+            return ;
+        }
         cl.set_fd_client(new_fd_s);
         this->clients.push_back(cl);
         this->polfd.push_back(init_pollfd(new_fd_s));
@@ -117,11 +123,11 @@ void Server::recive_data(int i)
                     Err_AlreadRegistred(i - 1);
                 break;
     }
-    // if (this->unk_com)
-    // {
-    //     std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
-    //     send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
-    // }
+    if (this->unk_com)
+    {
+        std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
+        send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
+    }
     this->unk_com = true;
 }
 
