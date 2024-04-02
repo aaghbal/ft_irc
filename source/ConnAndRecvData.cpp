@@ -118,6 +118,7 @@ void Server::recive_data(int i)
         case 'N':
                 if (this->clients[i - 1].cmd[0] == "NICK")
                     change_nikname(i - 1);
+                break;
         case 'U':
                 if (this->clients[i - 1].cmd[0] == "USER")
                     Err_AlreadRegistred(i - 1);

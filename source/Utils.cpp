@@ -102,7 +102,8 @@ void Server::disconnect_client(int i)
     this->polfd.erase(polfd.begin() + i + 1);
     this->clients.erase(this->clients.begin() + i);
     std::cout << "this client " << i + 1 << " closed" << std::endl;
-    // if (this->channels.size() != 0)
-    //     this->channels.erase(this->channels.begin() + i - 1);
+    if (this->channels.size() != 0)
+        for(size_t j = 0; j < this->channels.size(); j++)
+            erase_client_from_cha(i, j);
 }
 

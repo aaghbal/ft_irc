@@ -23,7 +23,7 @@ class Server
     private :
         int                                 fd_s;
         int                                 port;
-        int                                 max_clients;
+        size_t                              max_clients;
         int                                 nbyteread;
         std::string                         password;
         std::string                         client_pass;
@@ -38,6 +38,7 @@ class Server
 
     public :
         Server();
+        bool                        unk_com;
         void                        init_sockinfo();
         void                        create_socket();
         void                        set_port(int port);
@@ -58,7 +59,6 @@ class Server
         void                        recv_data(int i);
         void                        Command_Responses(int i);
         bool                        parsing_nickname(int i);
-        bool                        unk_com;
 
         std::vector<std::string>    split_cmd(std::string &cmd);
         void                        private_message(int i);
