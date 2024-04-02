@@ -167,7 +167,7 @@ void Server::Ch_modes(int i)
             {
                 this->channels[ch_index].mode = set_mode(this->channels[ch_index].mode, 'o');
                 this->channels[ch_index].erase_operat(this->client_name[this->clients[i].cmd[param]]);
-                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -o\r\n";
+                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -o " + this->clients[i].cmd[param] + "\r\n";
                 continue;
             }
             if (this->clients[i].cmd.size() < param)
@@ -178,7 +178,7 @@ void Server::Ch_modes(int i)
             else
             {
                 this->channels[ch_index].operat.push_back(this->client_name[this->clients[i].cmd[param]]);
-                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " +o" + this->clients[i].cmd[param] + "\r\n";
+                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " +o " + this->clients[i].cmd[param] + "\r\n";
             }
         }
         else

@@ -81,11 +81,10 @@ int Server::check_client_channel(std::string name,int ch_index, int flag, int ki
                     this->channels[ch_index].Kiked_Client.push_back(this->channels[ch_index]._Client[i].get_nickname());
                     this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
                     std::string msg;
-                    std::cout << this->clients[kicker].cmd.size() << std::endl;
                     if(this->clients[kicker].cmd.size() == 4)
-                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + " KICK " + this->channels[ch_index].get_name_channel() + " " + name +' '+ this->clients[kicker].cmd[3] + "\r\n";
+                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + "KICK " + this->channels[ch_index].get_name_channel() + " " + name +' '+ this->clients[kicker].cmd[3] + "\r\n";
                     else
-                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + " KICK " + this->channels[ch_index].get_name_channel() + " " + name + " :Kicked by " + this->clients[kicker].get_nickname() + "\r\n";
+                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + "KICK " + this->channels[ch_index].get_name_channel() + " " + name + " :Kicked by " + this->clients[kicker].get_nickname() + "\r\n";
                     send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
                 }
             return i;
@@ -102,7 +101,7 @@ void Server::disconnect_client(int i)
     this->polfd.erase(polfd.begin() + i + 1);
     this->clients.erase(this->clients.begin() + i);
     std::cout << "this client " << i + 1 << " closed" << std::endl;
-    if (this->channels.size() != 0)
+    if (this->channels.size() > 0)
         for(size_t j = 0; j < this->channels.size(); j++)
             erase_client_from_cha(i, j);
 }

@@ -75,6 +75,7 @@ int    myRevc(std::string &str , int fd)
 
 void Server::recive_data(int i)
 {
+    std::string Ignored_cmd[] = {"NOTICE", "MOTD", "LUSERS", "VERSION", "STATS", "LINKS", "TIME", "CONNECT", "TRACE", "ADMIN", "INFO", "SERVLIST", "SQUERY", "WHO", "WHOIS", "WHOWAS", "KILL", "PING", "PONG", "ERROR", "AWAY", "REHASH", "DIE", "RESTART", "SUMMON", "USERS", "WALLOPS", "USERHOST", "ISON"};
     this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
     if (check_recv_message(i))
         return ;
@@ -86,6 +87,11 @@ void Server::recive_data(int i)
     {
         authenticate(i - 1);
         return ;
+    }
+    for (size_t j = 0; j < sizeof(Ignored_cmd) / sizeof(Ignored_cmd[0]); j++)
+    {
+        if (this->clients[i - 1].cmd[0] == Ignored_cmd[j])
+            return ;
     }
     switch (this->clients[i - 1].cmd[0][0])
     {
@@ -123,13 +129,12 @@ void Server::recive_data(int i)
                 if (this->clients[i - 1].cmd[0] == "USER")
                     Err_AlreadRegistred(i - 1);
                 break;
+        default:
+        {
+            std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
+            send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
+        }
     }
-    if (this->unk_com)
-    {
-        std::string msg = ":IRCsERVER 421 " + this->clients[i - 1].get_nickname() + " " + this->clients[i - 1].cmd[0] + " :Unknown command\r\n";
-        send(this->clients[i - 1].get_fd_client(), msg.c_str(), msg.size(), 0);
-    }
-    this->unk_com = true;
 }
 
 bool Server::check_recv_message(int i)
