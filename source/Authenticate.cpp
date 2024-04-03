@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:39:32 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/04/03 15:34:01 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 18:11:34 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,7 @@ void    Server::change_nikname(int i)
     else
     {
         get_response_nick(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
+        std::cout << this->clients[i].cha_join.size() << std::endl;
         for (size_t c = 0; c < this->clients[i].cha_join.size(); c++)
         {
             int ch_cl_fd = check_client_channel(this->clients[i].get_nickname(),this->clients[i].cha_join[c],0,0);

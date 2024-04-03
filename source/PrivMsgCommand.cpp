@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 13:29:40 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/04/03 13:39:24 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 17:57:24 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ void Server::private_message(int i)
         send(this->clients[i].get_fd_client(),  "ircserv 411 :No recipient given PRIVMSG\r\n", 41, 0);
             return;
     }
+    std::cout << "spzise :" << this->clients[i].split_targ.size() << std::endl;
     for(size_t j = 0 ; j < this->clients[i].split_targ.size() ; j++)
     {
         if (this->clients[i].split_targ[j][0] == '#')
@@ -48,6 +49,7 @@ void Server::priv_msg_chan(int i, int j)
             {
                 if ((this->channels[k]._Client[c].get_fd_client() != this->clients[i].get_fd_client()))
                 {
+                    std::cout << "fd : " << this->channels[k]._Client[c].get_fd_client() << std::endl;
                     get_response_privmsg(msg, this->clients[i].split_targ[j], i, this->channels[k]._Client[c].get_fd_client());
                     if (this->clients[i].cmd[2][0] == ':')
                         all_arg(msg, i);
@@ -56,7 +58,9 @@ void Server::priv_msg_chan(int i, int j)
                     msg_cop = msg;
                     if(bot(msg_cop, i, this->channels[k].get_name_channel()))
                         return ;
+                    std::cout << "msg : " << msg << std::endl;
                     send(this->channels[k]._Client[c].get_fd_client(),  msg.c_str(), msg.size(), 0);
+                    msg.clear();
                 }
             }
             return ;
