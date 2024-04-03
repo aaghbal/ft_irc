@@ -10,10 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef CHANNEL_HPP
+#define CHANNEL_HPP
 
-#include "../include/Header.hpp"
-
+#include "Server.hpp"
+class Client;
 class Channel
 {
     private:
@@ -34,7 +35,9 @@ class Channel
         bool                        is_operator(int fd);
         bool                        joined_in_channel(int fd);
         bool                        is_invited(int fd);
+        
         void                        erase_operat(int fd);
         std::string                 &get_topic(void);
 };
 
+#endif

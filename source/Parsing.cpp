@@ -103,6 +103,14 @@ void    Server::to_upercase(std::string &cmd)
     }
 }
 
+void    Server::to_lower(std::string &cmd)
+{
+    for (size_t i = 0; i < cmd.size(); i++)
+    {
+        cmd[i] = tolower(cmd[i]);
+    }
+}
+
 void Server::password_channel(std::string &pass)
 {
     if (pass.size() > 24)

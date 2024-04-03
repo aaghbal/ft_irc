@@ -34,6 +34,7 @@ void Server::private_message(int i)
 void Server::priv_msg_chan(int i, int j)
 {
     std::string msg = "";
+    std::string msg_cop = "";
     for (size_t k = 0; k < this->channels.size(); k++)
     {
         if (this->channels[k].get_name_channel() == this->clients[i].split_targ[j])
@@ -52,7 +53,8 @@ void Server::priv_msg_chan(int i, int j)
                         all_arg(msg, i);
                     else
                         msg += this->clients[i].cmd[2] + "\r\n";
-                    if(bot(msg, i, this->channels[k].get_name_channel()))
+                    msg_cop = msg;
+                    if(bot(msg_cop, i, this->channels[k].get_name_channel()))
                         return ;
                     send(this->channels[k]._Client[c].get_fd_client(),  msg.c_str(), msg.size(), 0);
                 }

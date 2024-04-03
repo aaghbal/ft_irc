@@ -10,9 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef ERROR_HPP
+#define ERROR_HPP
 
-#include "Header.hpp"
+#include "Server.hpp"
+
 
 void parsing(std::string password, std::string port);
 void parsing_port(int port);
@@ -34,3 +36,4 @@ class Error {
       void ErrorPortSyn(void) const;
       
 };
+#endif

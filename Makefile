@@ -11,9 +11,9 @@
 # **************************************************************************** #
 
 CC = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 
 SRC = $(wildcard ./source/*.cpp)
-INC = $(wildcard ./inlude/*.hpp)
+INC = ./include/Channel.hpp ./include/Client.hpp  ./include/Error.hpp   ./include/Header.hpp  ./include/Server.hpp
 NAME = ircserv
 OBJ = $(SRC:.cpp=.o)
 

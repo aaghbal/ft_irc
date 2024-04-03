@@ -31,7 +31,7 @@ def connect_to_server():
         print("Error:", e)
 
 # Number of clients to connect
-num_clients = 1020
+num_clients = 20
 
 # Create and start threads for each client
 threads = []

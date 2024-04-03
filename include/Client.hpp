@@ -10,9 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 
-#include "Header.hpp"
+#include "Server.hpp"
 
 class Client {
   
@@ -45,3 +46,4 @@ class Client {
         std::string                         &get_username(void);
         std::string                         &get_password(void);                     
 };
+#endif

@@ -10,9 +10,25 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-
-#include "../include/Header.hpp"
+#ifndef SERVER_HPP
+#define SERVER_HPP
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <vector>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <poll.h> 
+#include <vector>
+#include <sys/socket.h>
+#include <map>
+#include "Error.hpp"
+#include "Server.hpp"
+#include "Client.hpp"
+#include "Channel.hpp"
 
 class Client;
 class Channel;
@@ -98,5 +114,7 @@ class Server
         void                        Err_NotRegistered(int i);
         void                        ErrOneusNickname(int i);
         bool                        bot(std::string &msg, int j,std::string &chan);
-
+        void                        to_lower(std::string &cmd);
+        int                         check_client_channel(std::string name);
 };
+#endif

@@ -114,6 +114,15 @@ void Server::authenticate(int j)
            return ;
     }
 }
+int Server::check_client_channel(std::string name)
+{
+    for (size_t i = 0; i < this->channels.size(); i++)
+    {
+        if(check_client_channel(name ,i,0,0) != -1)
+            return i;
+    }
+    return -1;
+}
 
 void    Server::change_nikname(int i)
 {
@@ -130,6 +139,9 @@ void    Server::change_nikname(int i)
     else
     {
         get_response_nick(this->clients[i].cmd[1], i, this->clients[i].get_fd_client());
+        int ch  = check_client_channel(this->clients[i].get_nickname());
+        int ch_cl_fd = check_client_channel(this->clients[i].get_nickname(),ch,0,0);
+        this->channels[ch]._Client[ch_cl_fd].set_nickname(this->clients[i].cmd[1]);
         this->clients[i].set_nickname(this->clients[i].cmd[1]);
         this->client_name[this->clients[i].cmd[1]] = this->clients[i].get_fd_client();
     }

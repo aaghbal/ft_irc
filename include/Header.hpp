@@ -11,23 +11,8 @@
 /* ************************************************************************** */
 
 #pragma once
-#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <vector>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <poll.h> 
-#include <vector>
-#include <sys/socket.h>
-#include <map>
-#include "Error.hpp"
+
 #include "Server.hpp"
-#include "Client.hpp"
-#include "Channel.hpp"
 
 #define MAX_CLIENTS 200
 
@@ -44,3 +29,4 @@
 #define NICKNAME_REQUIRED "IRCsERVER 431 :No nickname given\r\n"
 #define NICKNAME_TOO_LONG "IRCsERVER 432 :Nickname too long\r\n"
 #define NICKNAME_TOO_SHORT "IRCsERVER 433 :Nickname too short\r\n"
+

@@ -54,7 +54,7 @@ void Server::Ch_modes(int i)
     }
     if (!this->channels[ch_index].is_operator(this->clients[i].get_fd_client()))
     {    
-        msg = ":ircserver 482 " + this->channels[ch_index].get_name_channel() + " :You're not channel operator 88\r\n";
+        msg = ":ircserver 482 " + this->channels[ch_index].get_name_channel() + " :You're not channel operator\r\n";
         send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
     }
