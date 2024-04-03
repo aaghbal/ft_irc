@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 15:48:13 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/31 17:20:40 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 13:03:36 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,6 @@ class Server
         void                        ErrOneusNickname(int i);
         bool                        bot(std::string &msg, int j,std::string &chan);
         void                        to_lower(std::string &cmd);
-        int                         check_client_channel(std::string name);
+        int                         get_indx_channel(std::string name);
 };
 #endif

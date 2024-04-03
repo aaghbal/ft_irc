@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 15:25:16 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/27 15:06:03 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 13:19:08 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Client {
         bool                                nick_succ;
         std::string                         buff;
         int                                 num_pass;
+        std::vector<int>                    cha_join;
 
         std::vector<std::string>            cmd;
         std::vector<std::string>            split_targ;

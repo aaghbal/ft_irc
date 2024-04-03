@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 10:26:15 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 13:35:46 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 15:07:59 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ class Channel
         bool                        is_operator(int fd);
         bool                        joined_in_channel(int fd);
         bool                        is_invited(int fd);
-        
         void                        erase_operat(int fd);
         std::string                 &get_topic(void);
 };

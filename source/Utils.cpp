@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 12:52:59 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/29 17:05:33 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 14:22:29 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,15 @@ int Server::check_client_channel(std::string name,int ch_index, int flag, int ki
 void Server::disconnect_client(int i)
 {
     this->unk_com = false;
+    if (this->channels.size() > 0)
+        for(size_t j = 0; j < this->channels.size(); j++)
+        {
+            if (check_client_channel(this->clients[i].get_nickname(),j , 0, 0))
+                this->channels[j]._Client.erase(channels[j]._Client.begin() + i);
+        }
     close(this->clients[i].get_fd_client());
-    //this->clients[i - 1].cmd.clear();// segfault
     this->polfd.erase(polfd.begin() + i + 1);
     this->clients.erase(this->clients.begin() + i);
     std::cout << "this client " << i + 1 << " closed" << std::endl;
-    if (this->channels.size() > 0)
-        for(size_t j = 0; j < this->channels.size(); j++)
-            erase_client_from_cha(i, j);
 }
 

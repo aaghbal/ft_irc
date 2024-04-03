@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 13:57:26 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/31 15:54:24 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 15:07:50 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void Server::create_new_chan(int i, int k)
     ch.topic = "No topic is set";
     ch.operat.push_back(this->clients[i].get_fd_client());
     ch.max_clients = 1000;
+    this->clients[i].cha_join.push_back(0);
     if (this->clients[i].split_targ[k].size() == 1)
     {
         ErrBadChannelKey(i, k);
@@ -147,6 +148,7 @@ void Server::join_channel(int n_ch, int i, int k)
                 return ;
             }
     this->channels[n_ch]._Client.push_back(this->clients[i]);
+    this->clients[i].cha_join.push_back(n_ch);
     joined_message(this->clients[i].get_fd_client(), i, n_ch, k);
 }
 

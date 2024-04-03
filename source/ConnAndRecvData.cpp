@@ -6,7 +6,7 @@
 /*   By: aaghbal <aaghbal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/26 14:35:54 by aaghbal           #+#    #+#             */
-/*   Updated: 2024/03/31 17:42:32 by aaghbal          ###   ########.fr       */
+/*   Updated: 2024/04/03 12:36:59 by aaghbal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,9 @@ void Server::add_new_connection(void)
 int    myRevc(std::string &str , int fd)
 {
     char buff[1001];
+    bzero(buff, 1001);
     int ret = recv(fd, buff, 1000, 0);
-    if (ret > 0)
-        buff[ret - 1] = '\0';
-    str = buff;
+    str += buff;
     return ret;
 }
 
@@ -148,9 +147,9 @@ bool Server::check_recv_message(int i)
         close(this->polfd[i].fd);
         this->polfd.erase(polfd.begin() + i);
         this->clients.erase(this->clients.begin() + i - 1);
-        // if (this->channels.size() != 0)
-        //     this->channels.erase(this->channels.begin() + i - 1);
         return true;
     }
+    if (this->clients[i - 1].buff.find("\n") == std::string::npos)
+        return true;
     return false;
 }
