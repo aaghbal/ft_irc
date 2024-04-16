@@ -51,6 +51,8 @@ void Server::add_new_connection(void)
             send(new_fd_s, msg.c_str(), msg.size(), 0);
             return ;
         }
+        if (fcntl(new_fd_s, F_SETFL, O_NONBLOCK) == -1)
+            throw Error();
         cl.set_fd_client(new_fd_s);
         this->clients.push_back(cl);
         this->polfd.push_back(init_pollfd(new_fd_s));
@@ -65,8 +67,8 @@ void Server::add_new_connection(void)
 
 int    myRevc(std::string &str , int fd)
 {
-    char buff[1001];
-    int ret = recv(fd, buff, 1000, 0);
+    char buff[1024];
+    int ret = recv(fd, buff, 1023, 0);
     if (ret > 0)
         buff[ret - 1] = '\0';
     str = buff;
@@ -76,6 +78,8 @@ int    myRevc(std::string &str , int fd)
 void Server::recive_data(int i)
 {
     std::string Ignored_cmd[] = {"NOTICE", "MOTD", "LUSERS", "VERSION", "STATS", "LINKS", "TIME", "CONNECT", "TRACE", "ADMIN", "INFO", "SERVLIST", "SQUERY", "WHO", "WHOIS", "WHOWAS", "KILL", "PING", "PONG", "ERROR", "AWAY", "REHASH", "DIE", "RESTART", "SUMMON", "USERS", "WALLOPS", "USERHOST", "ISON"};
+    this->clients[i - 1].cmd.clear();
+    this->clients[i - 1].split_targ.clear();
     this->nbyteread = myRevc(this->clients[i - 1].buff, this->clients[i - 1].get_fd_client());
     if (check_recv_message(i))
         return ;
@@ -128,6 +132,10 @@ void Server::recive_data(int i)
         case 'U':
                 if (this->clients[i - 1].cmd[0] == "USER")
                     Err_AlreadRegistred(i - 1);
+                break;
+        case 'T':
+                if (this->clients[i - 1].cmd[0] == "TOPIC")
+                    channel_topic(i - 1);
                 break;
         default:
         {

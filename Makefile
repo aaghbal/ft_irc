@@ -11,24 +11,35 @@
 # **************************************************************************** #
 
 CC = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 SRC = $(wildcard ./source/*.cpp)
 INC = ./include/Channel.hpp ./include/Client.hpp  ./include/Error.hpp   ./include/Header.hpp  ./include/Server.hpp
 NAME = ircserv
 OBJ = $(SRC:.cpp=.o)
-
+BONUS = $(wildcard ./bonus/*.cpp)
+BONUS_OBJ = $(BONUS:.cpp=.o)
+B_NAME = ircserv_bot
 all: $(NAME)
+
+bonus: ${B_NAME}
+
+$(B_NAME):${BONUS_OBJ}
+	${CC} ${CPPFLAGS} -I ./bonus/bot.hpp ${BONUS_OBJ} -o ${B_NAME}
 
 $(NAME):${OBJ}
 	${CC} ${CPPFLAGS} ${OBJ} -o ${NAME}
 
-%.o: %.cpp $(INC)
+%.o: %.cpp $(INC) 
 	${CC} ${CPPFLAGS} -c $< -o $@
 
 clean :
-	rm -rf ${OBJ}
+	rm -rf ${OBJ} ${BONUS_OBJ}
 
-fclean : clean
-	rm -rf ${NAME}
+fclean : clean 
+	rm -rf ${NAME} ${B_NAME}
 
-re : fclean all
+re : fclean all 
+
+rebonus : 
+	rm -rf ${B_NAME}
+	make bonus

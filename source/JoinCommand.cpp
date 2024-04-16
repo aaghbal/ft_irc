@@ -56,7 +56,8 @@ void Server::create_new_chan(int i, int k)
     Channel ch;
     ch.set_name(this->clients[i].split_targ[k]);
     ch._Client.push_back(this->clients[i]);
-    ch.topic = "No topic is set";
+    ch.topic = ":No topic is set";
+    ch.mode = "";
     ch.operat.push_back(this->clients[i].get_fd_client());
     ch.max_clients = 1000;
     if (this->clients[i].split_targ[k].size() == 1)
@@ -110,11 +111,13 @@ bool Server::check_mode_chan(int n_ch, int i)
 
 void Server::join_channel(int n_ch, int i, int k)
 {
-    if (this->channels[n_ch].mode.find('k') != std::string::npos)
+    if(this->channels[n_ch].mode.size() > 0)
+    { 
+     if (this->channels[n_ch].mode.find('k') != std::string::npos)
     {
         std::string info = this->clients[i].get_nickname() + " " + this->channels[n_ch].get_name_channel();
         std::string msg = ":IRCsERVER 475 " + info + " :Cannot join channel (+k) - bad key\r\n";
-        if (this->channels[n_ch].password == this->clients[i].cmd[2])
+        if (this->clients[i].cmd.size() > 2 && this->channels[n_ch].password == this->clients[i].cmd[2])
         {
             this->channels[n_ch]._Client.push_back(this->clients[i]);
             joined_message(this->clients[i].get_fd_client(), i, n_ch, k);
@@ -135,6 +138,7 @@ void Server::join_channel(int n_ch, int i, int k)
             msg.clear();
             return ;
         }
+    }
     if(this->channels[n_ch].Kiked_Client.size() > 0)
         for(size_t j = 0; j < this->channels[n_ch].Kiked_Client.size(); j++)
             if(this->channels[n_ch].Kiked_Client[j] == this->clients[i].get_nickname())

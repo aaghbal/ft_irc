@@ -72,37 +72,34 @@ bool Server::check_client_name(std::string name)
 
 int Server::check_client_channel(std::string name,int ch_index, int flag, int kicker)
 {
-    for (size_t i = 0; i < this->channels[ch_index]._Client.size(); i++)
-    {
-        if (this->channels[ch_index]._Client[i].get_nickname() == name)
+    if(this->channels[ch_index].get_name_channel().size() != std::string::npos)
+        for (size_t i = 0; i < this->channels[ch_index]._Client.size(); i++)
         {
-            if (flag)
-                {
-                    this->channels[ch_index].Kiked_Client.push_back(this->channels[ch_index]._Client[i].get_nickname());
-                    this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
-                    std::string msg;
-                    if(this->clients[kicker].cmd.size() == 4)
-                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + "KICK " + this->channels[ch_index].get_name_channel() + " " + name +' '+ this->clients[kicker].cmd[3] + "\r\n";
-                    else
-                        msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + "KICK " + this->channels[ch_index].get_name_channel() + " " + name + " :Kicked by " + this->clients[kicker].get_nickname() + "\r\n";
-                    send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
-                }
-            return i;
+            if (this->channels[ch_index]._Client[i].get_nickname() == name)
+            {
+                if (flag)
+                    {
+                        this->channels[ch_index].Kiked_Client.push_back(this->channels[ch_index]._Client[i].get_nickname());
+                        this->channels[ch_index]._Client.erase(channels[ch_index]._Client.begin() + i);
+                        std::string msg;
+                        if(this->clients[kicker].cmd.size() == 4)
+                            msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + "KICK " + this->channels[ch_index].get_name_channel() + " " + name +' '+ this->clients[kicker].cmd[3] + "\r\n";
+                        else
+                            msg = ":" + this->clients[kicker].get_nickname() + "!" + this->clients[i].get_username() + "@" "localhost " + "KICK " + this->channels[ch_index].get_name_channel() + " " + name + " :Kicked by " + this->clients[kicker].get_nickname() + "\r\n";
+                        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
+                    }
+                return i;
+            }
         }
-    }
     return -1;
 }
 
 void Server::disconnect_client(int i)
 {
     this->unk_com = false;
+    std::cout << "this client " << i + 1 << " closed" << std::endl;
     close(this->clients[i].get_fd_client());
-    //this->clients[i - 1].cmd.clear();// segfault
     this->polfd.erase(polfd.begin() + i + 1);
     this->clients.erase(this->clients.begin() + i);
-    std::cout << "this client " << i + 1 << " closed" << std::endl;
-    if (this->channels.size() > 0)
-        for(size_t j = 0; j < this->channels.size(); j++)
-            erase_client_from_cha(i, j);
 }
 

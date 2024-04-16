@@ -45,11 +45,10 @@ void Server::Ch_modes(int i)
     if(this->clients[i].cmd.size() < 3)
         return ;
     int ch_index = found_channel(this->clients[i].cmd[1]);
-    if (this->clients[i].cmd.size() < 3)
-        return ;
     if (ch_index == -1)
     {
-        send(this->clients[i].get_fd_client(), ":ircserver 403 MODE :No such channel\r\n", 33, 0);
+        msg = ":ircserver 403 MODE :No such channel\r\n";
+        send(this->clients[i].get_fd_client(), msg.c_str(), msg.size(), 0);
         return ;
     }
     if (!this->channels[ch_index].is_operator(this->clients[i].get_fd_client()))
@@ -63,11 +62,13 @@ void Server::Ch_modes(int i)
     {
         msg.clear();
         msg = ":ircserver 501 MODE :Unknown MODE flag\r\n";
-        if (this->clients[i].cmd[2][j] == 's' || this->clients[i].cmd[2][j] == 'p' || this->clients[i].cmd[2][j] == 'n' || this->clients[i].cmd[2][j] == 'm' || this->clients[i].cmd[2][j] == 'q' || this->clients[i].cmd[2][j] == 'a' || this->clients[i].cmd[2][j] == 'h' || this->clients[i].cmd[2][j] == 'v')
+        if (this->clients[i].cmd[2][j] == 'p' || this->clients[i].cmd[2][j] == 'n' || this->clients[i].cmd[2][j] == 'm' || this->clients[i].cmd[2][j] == 'q' || this->clients[i].cmd[2][j] == 'a' || this->clients[i].cmd[2][j] == 'h' || this->clients[i].cmd[2][j] == 'v' || this->clients[i].cmd[2][j] == 's')
             return;
+        if(this->clients[i].cmd[2][j] == '+' || this->clients[i].cmd[2][j] == '-')
+            continue;
         else if (this->clients[i].cmd[2][j] == 'i')
         {
-            if(this->clients[i].cmd[2][0] == '-')
+            if(this->clients[i].cmd[2][j - 1] == '-')
             {
                 this->channels[ch_index].mode = set_mode(this->channels[ch_index].mode, 'i');
                 msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -i\r\n";
@@ -81,37 +82,28 @@ void Server::Ch_modes(int i)
         }
         else if (this->clients[i].cmd[2][j] == 't')
         {
-            if(this->clients[i].cmd[2][0] == '-')
+            if(this->clients[i].cmd[2][j - 1] == '-')
             {
                 this->channels[ch_index].mode = set_mode(this->channels[ch_index].mode, 't');
                 this->channels[ch_index].topic = "No topic is set.";
                 msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -t\r\n";
                 continue; 
             }
-            if (this->clients[i].cmd.size() < param)
-            {
-                msg = ":ircserver 461 MODE :Not enough parameters\r\n";
-                break;
-            }
-            else
-            {
-                this->channels[ch_index].topic= this->clients[i].cmd[param];
-                this->channels[ch_index].mode += this->clients[i].cmd[2][j];
-                msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " t\r\n";
-            }   
+            this->channels[ch_index].mode += this->clients[i].cmd[2][j];
+            msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " t\r\n";
             param--;
         }   
         else if (this->clients[i].cmd[2][j] == 'k')
         {
             this->channels[ch_index].mode += this->clients[i].cmd[2][j];
-            if(this->clients[i].cmd[2][0] == '-')
+            if(this->clients[i].cmd[2][j - 1] == '-')
             {
                 this->channels[ch_index].mode = set_mode(this->channels[ch_index].mode, 'k');
                 this->channels[ch_index].password.clear();
                 msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -k\r\n";
                 continue;
             }
-            if (this->clients[i].cmd.size() < param)
+            if (this->clients[i].cmd.size() <= param)
             {
                 msg = ":ircserver 461 MODE :Not enough parameters\r\n";
                 break;
@@ -129,14 +121,14 @@ void Server::Ch_modes(int i)
         }
         else if (this->clients[i].cmd[2][j] == 'l')
         {
-            if(this->clients[i].cmd[2][0] == '-')
+            if(this->clients[i].cmd[2][j - 1] == '-')
             {
                 this->channels[ch_index].mode = set_mode(this->channels[ch_index].mode, 'l');
                 this->channels[ch_index].max_clients = 1000;
                 msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -l\r\n";
                 continue;
             }
-            if (this->clients[i].cmd.size() < param)
+            if (this->clients[i].cmd.size() <= param)
             {
                 msg = ":ircserver 461 MODE :Not enough parameters\r\n";
                 break;
@@ -163,14 +155,14 @@ void Server::Ch_modes(int i)
                 msg = ":ircserver 441 " + this->clients[i].cmd[param] + " " + this->channels[ch_index].get_name_channel() + ":No such nick/channel\r\n";
                 break;
             }
-            if(this->clients[i].cmd[2][0] == '-')
+            if(this->clients[i].cmd[2][j - 1] == '-')
             {
                 this->channels[ch_index].mode = set_mode(this->channels[ch_index].mode, 'o');
                 this->channels[ch_index].erase_operat(this->client_name[this->clients[i].cmd[param]]);
                 msg = ":ircserver MODE " + this->channels[ch_index].get_name_channel() + " -o " + this->clients[i].cmd[param] + "\r\n";
                 continue;
             }
-            if (this->clients[i].cmd.size() < param)
+            if (this->clients[i].cmd.size() <= param)
             {
                 msg = ":ircserver 461 MODE :Not enough parameters\r\n";
                 break;

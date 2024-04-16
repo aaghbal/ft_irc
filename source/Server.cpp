@@ -76,7 +76,7 @@ void Server::listen_requ(void)
 { 
     try
     {
-        if (listen(this->fd_s, 200) == -1)
+        if (listen(this->fd_s, 10) == -1)
             throw Error();
         this->polfd.push_back(init_pollfd(this->fd_s));
     }

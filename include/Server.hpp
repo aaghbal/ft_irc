@@ -115,6 +115,6 @@ class Server
         void                        ErrOneusNickname(int i);
         bool                        bot(std::string &msg, int j,std::string &chan);
         void                        to_lower(std::string &cmd);
-        int                         check_client_channel(std::string name);
+        int                         check_channels(std::string name);
 };
 #endif
